@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import java.io.IOException
+import java.net.SocketTimeoutException
 import javax.inject.Inject
 
 class RequestUseCase @Inject constructor(
@@ -22,6 +23,8 @@ class RequestUseCase @Inject constructor(
             emit(Resource.Error(e.localizedMessage ?: "An unexpected error occured"))
         } catch (e: IOException) {
             emit(Resource.Error("Couldn't reach server. Check your internet connection: ${e.message}"))
+        } catch (e: SocketTimeoutException) {
+            emit(Resource.Error("Couldn't reach server: ${e.message}"))
         }
     }
 }

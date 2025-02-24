@@ -56,7 +56,6 @@ class ChatViewModel @Inject constructor(
                 }
             } finally {
                 _state.value = ChatListState(isLoading = false)
-                Log.d("IS_LOADING", "Loading finished")
             }
         }
     }
