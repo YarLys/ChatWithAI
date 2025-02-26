@@ -1,9 +1,20 @@
 package com.example.chatwithai.di
 
+import android.app.Application
+import androidx.room.Room
 import com.example.chatwithai.common.Constants
+import com.example.chatwithai.common.Constants.DATABASE_NAME
+import com.example.chatwithai.data.local.database.RagDatabase
 import com.example.chatwithai.data.remote.NeuralApi
+import com.example.chatwithai.data.repository.RagRepositoryImpl
 import com.example.chatwithai.data.repository.ResponseRepositoryImpl
+import com.example.chatwithai.domain.repository.RagRepository
 import com.example.chatwithai.domain.repository.ResponseRepository
+import com.example.chatwithai.domain.use_case.AddRag
+import com.example.chatwithai.domain.use_case.DeleteRag
+import com.example.chatwithai.domain.use_case.GetRag
+import com.example.chatwithai.domain.use_case.GetRags
+import com.example.chatwithai.domain.use_case.RagUseCases
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -39,5 +50,32 @@ object AppModule {
     @Singleton
     fun provideResponseRepository(api: NeuralApi): ResponseRepository {
         return ResponseRepositoryImpl(api)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRagDatabase(app: Application): RagDatabase {
+        return Room.databaseBuilder(
+            app,
+            RagDatabase::class.java,
+            DATABASE_NAME
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRagRepository(db: RagDatabase): RagRepository {
+        return RagRepositoryImpl(db.ragDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRagUseCases(repository: RagRepository): RagUseCases {
+        return RagUseCases(
+            getRags = GetRags(repository),
+            getRag = GetRag(repository),
+            addRag = AddRag(repository),
+            deleteRag = DeleteRag(repository)
+        )
     }
 }

@@ -1,4 +1,4 @@
-package com.example.chatwithai.presentation
+package com.example.chatwithai.presentation.navigation
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar

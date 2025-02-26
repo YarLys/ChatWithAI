@@ -1,9 +1,6 @@
-package com.example.chatwithai.presentation.chat_screen
+package com.example.chatwithai.presentation.chat
 
 
-import android.util.Log
-import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chatwithai.domain.model.Message
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,22 +34,20 @@ fun ChatScreen() {
             modifier = Modifier
                 .weight(1f)
                 .padding(bottom = 8.dp),
-            state = listState // Передаем состояние списка
+            state = listState // set list state
         ) {
             items(messages) { message ->
                 ShowMessage(message = message)
             }
         }
 
-        // Прокрутка вниз при добавлении нового сообщения
+        // scroll down when adding new message
         LaunchedEffect(messages) {
             if (messages.size > 0) {
-                // Прокручиваем до конца списка
                 listState.animateScrollToItem(messages.size - 1)
             }
         }
 
-        // Поле ввода сообщения
         Row(
             modifier = Modifier
                 .fillMaxWidth()

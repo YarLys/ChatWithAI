@@ -1,8 +1,5 @@
-package com.example.chatwithai.presentation.chat_screen
+package com.example.chatwithai.presentation.chat
 
-import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chatwithai.common.Resource

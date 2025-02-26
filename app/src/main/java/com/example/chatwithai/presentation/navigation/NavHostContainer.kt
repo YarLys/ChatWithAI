@@ -1,4 +1,4 @@
-package com.example.chatwithai.presentation
+package com.example.chatwithai.presentation.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.chatwithai.presentation.chat_screen.ChatScreen
+import com.example.chatwithai.presentation.chat.ChatScreen
 import com.example.chatwithai.presentation.history.HistoryScreen
 import com.example.chatwithai.presentation.rags.RagScreen
 

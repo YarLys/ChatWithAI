@@ -7,11 +7,12 @@ import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Send
-import com.example.chatwithai.presentation.BottomNavItem
+import com.example.chatwithai.presentation.navigation.BottomNavItem
 
 object Constants {
 
     const val BASE_URL = "http://94.126.205.209:8000/"
+    const val DATABASE_NAME = "rags_db"
 
     val BottomNavItems = listOf(
         BottomNavItem(
