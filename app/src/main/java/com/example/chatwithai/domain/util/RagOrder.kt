@@ -5,4 +5,11 @@ sealed class RagOrder(
 ) {
     class Title(orderType: OrderType): RagOrder(orderType)
     class Date(orderType: OrderType): RagOrder(orderType)
+
+    fun copy(orderType: OrderType): RagOrder {
+        return when (this) {
+            is Title -> Title(orderType)
+            is Date -> Date(orderType)
+        }
+    }
 }

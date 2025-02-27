@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.example.chatwithai.presentation.MainScreen
+import com.example.chatwithai.presentation.rags.RagScreen
 import com.example.chatwithai.presentation.theme.ChatWithAITheme
 import dagger.hilt.android.AndroidEntryPoint
 
