@@ -40,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.chatwithai.presentation.rags.components.OrderSection
 import com.example.chatwithai.presentation.rags.components.RagItem
+import com.example.chatwithai.presentation.util.Screen
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -58,7 +59,7 @@ fun RagScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-
+                    navController.navigate(Screen.AddEditRagScreen.route)
                 },
                 containerColor = MaterialTheme.colorScheme.primary
                 ) {
@@ -79,7 +80,7 @@ fun RagScreen(
             ) {
                 Text(
                     text = "Ваши RAGs",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleLarge
                 )
                 IconButton(
                     onClick = {
@@ -117,7 +118,8 @@ fun RagScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                // navigate to edit rag
+                                navController.navigate(Screen.AddEditRagScreen.route +
+                                "?ragId=${rag.id}") // navigate to edit chosen rag
                             },
                         onDeleteClick = {
                             viewModel.onEvent(RagsEvent.DeleteRag(rag))

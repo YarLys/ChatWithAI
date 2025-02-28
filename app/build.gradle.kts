@@ -107,4 +107,7 @@ dependencies {
 
     // Kotlin Extensions and Coroutines support for Room
     implementation("androidx.room:room-ktx:2.6.1")
+
+    // For Icons
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
 }

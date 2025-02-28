@@ -1,12 +1,12 @@
 package com.example.chatwithai.common
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Search
-import androidx.compose.material.icons.outlined.Send
 import com.example.chatwithai.presentation.navigation.BottomNavItem
 
 object Constants {
@@ -17,8 +17,8 @@ object Constants {
     val BottomNavItems = listOf(
         BottomNavItem(
             label = "Чат",
-            selectedIcon = Icons.Filled.Send,
-            unselectedIcon = Icons.Outlined.Send,
+            selectedIcon = Icons.AutoMirrored.Filled.Send,
+            unselectedIcon = Icons.AutoMirrored.Outlined.Send,
             route = "chat"
         ),
         BottomNavItem(

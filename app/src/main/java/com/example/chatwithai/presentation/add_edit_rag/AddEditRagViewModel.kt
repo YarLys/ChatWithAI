@@ -2,6 +2,7 @@ package com.example.chatwithai.presentation.add_edit_rag
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chatwithai.domain.model.InvalidRagException
@@ -15,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddEditRagViewModel @Inject constructor(
-    private val ragUseCases: RagUseCases
+    private val ragUseCases: RagUseCases,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _ragTitle = mutableStateOf(RagTextFieldState(
@@ -32,6 +34,24 @@ class AddEditRagViewModel @Inject constructor(
     val eventFlow = _eventFlow.asSharedFlow()
 
     private var currentRagId: Int? = null
+
+    init {
+        savedStateHandle.get<Int>("ragId")?.let { ragId ->
+            viewModelScope.launch {
+                ragUseCases.getRag(ragId)?.also { rag ->
+                    currentRagId = rag.id
+                    _ragTitle.value = ragTitle.value.copy(
+                        text = rag.title,
+                        isHintVisible = false
+                    )
+                    _ragContent.value = ragContent.value.copy(
+                        text = rag.content,
+                        isHintVisible = false
+                    )
+                }
+            }
+        }
+    }
 
     fun onEvent(event: AddEditRagEvent) {
         when (event) {
