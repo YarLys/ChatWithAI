@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.chatwithai.domain.model.Message
 import com.example.chatwithai.presentation.rags.RagSharedEvent
-import com.example.chatwithai.presentation.rags.RagsEvent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,7 +22,6 @@ fun ChatScreen() {
     val userMessage by viewModel.userMessage.collectAsState()
     val messages by viewModel.messages.collectAsState()
     val state by viewModel.state.collectAsState() // loading state
-    val event by viewModel.events.collectAsState(null)
 
     // Состояние списка
     val listState = rememberLazyListState()
@@ -49,25 +47,6 @@ fun ChatScreen() {
         LaunchedEffect(messages) {
             if (messages.size > 0) {
                 listState.animateScrollToItem(messages.size - 1)
-            }
-        }
-
-        // Added rag in request event
-        LaunchedEffect(event) {
-            event?.let {
-                when (it) {
-                    is RagSharedEvent.UseRag -> {   // adding in user request rag's message
-                        Log.d("ChatScreen", "Received use rag event. Added in request: ${it.rag.content}")
-                        Log.d("ChatScreen", "Usermessage: $userMessage")
-                        var newText = ""
-                        // should never happen, but check
-                        if (it.rag.content.isNotBlank()) {
-                            newText = userMessage + " " + it.rag.content
-                        }
-                        viewModel.updateUserMessage(newText)
-                        viewModel.clearEvent() // clear event after handling
-                    }
-                }
             }
         }
 

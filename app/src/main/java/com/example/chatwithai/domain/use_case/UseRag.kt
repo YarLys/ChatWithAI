@@ -2,7 +2,7 @@ package com.example.chatwithai.domain.use_case
 
 import com.example.chatwithai.domain.repository.SharedEventRepository
 import com.example.chatwithai.presentation.rags.RagSharedEvent
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import javax.inject.Inject
 
 class UseRag @Inject constructor(
@@ -12,7 +12,7 @@ class UseRag @Inject constructor(
         repository.emitEvent(ragEvent)
     }
 
-    fun observeEvents(): StateFlow<RagSharedEvent?> {
+    fun observeEvents(): SharedFlow<RagSharedEvent?> {
         return repository.events
     }
 

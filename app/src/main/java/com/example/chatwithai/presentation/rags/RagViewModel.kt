@@ -60,12 +60,6 @@ class RagViewModel @Inject constructor(
                     isOrderSectionVisible = !state.value.isOrderSectionVisible
                 )
             }
-            /*is RagsEvent.UseRag -> {
-                viewModelScope.launch {
-                    Log.d("RagViewModel", "Receive use rag event and send with usecase. ${event.rag.content}")
-                    useRagUseCase.sendEvent(event)
-                }
-            }*/
         }
     }
 

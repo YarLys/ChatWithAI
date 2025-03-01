@@ -1,5 +1,6 @@
 package com.example.chatwithai.presentation.chat
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chatwithai.common.Resource
@@ -10,6 +11,7 @@ import com.example.chatwithai.domain.use_case.UseRag
 import com.example.chatwithai.presentation.rags.RagSharedEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,10 +28,34 @@ class ChatViewModel @Inject constructor(
     private val _state = MutableStateFlow(ChatListState())
     val state: MutableStateFlow<ChatListState> = _state
 
-    val events: StateFlow<RagSharedEvent?> = eventUseCase.observeEvents()
-
     private val _userMessage = MutableStateFlow("")
     val userMessage: StateFlow<String> = _userMessage
+
+    init {
+        viewModelScope.launch {
+            eventUseCase.observeEvents().collect { event ->
+                event?.let {
+                    handleEvent(it)
+                }
+            }
+        }
+    }
+
+    fun handleEvent(event: RagSharedEvent) {
+        when (event) {
+            is RagSharedEvent.UseRag -> {   // adding in user request rag's message
+                Log.d("ChatScreen", "Received use rag event. Added in request: ${event.rag.content}")
+                Log.d("ChatScreen", "Usermessage: $userMessage")
+                var newText = ""
+                // should never happen, but check
+                if (event.rag.content.isNotBlank()) {
+                    newText = userMessage.value + " " + event.rag.content
+                } else newText = userMessage.value
+                updateUserMessage(newText)
+            }
+        }
+        clearEvent() // clear event after handling
+    }
 
     fun updateUserMessage(newText: String) {
         _userMessage.value = newText

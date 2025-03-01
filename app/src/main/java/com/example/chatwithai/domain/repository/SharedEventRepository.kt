@@ -1,12 +1,12 @@
 package com.example.chatwithai.domain.repository
 
 import com.example.chatwithai.presentation.rags.RagSharedEvent
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 
 interface SharedEventRepository {
-    val _events: MutableStateFlow<RagSharedEvent?>
-    val events: StateFlow<RagSharedEvent?>
+    val _events: MutableSharedFlow<RagSharedEvent?>
+    val events: SharedFlow<RagSharedEvent?>
 
     suspend fun emitEvent(ragsEvent: RagSharedEvent)
     suspend fun clearEvent()
