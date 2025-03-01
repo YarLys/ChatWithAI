@@ -11,8 +11,11 @@ class AddRag @Inject constructor(
 ) {
     @Throws(InvalidRagException::class)
     suspend operator fun invoke(rag: Rag) {
+        if (rag.title.isBlank()) {
+            throw InvalidRagException("Заголовок RAG не может быть пустым")
+        }
         if (rag.content.isBlank()) {
-            throw InvalidRagException("The content of rag can't be empty.")
+            throw InvalidRagException("Содержимое RAG не может быть пустым")
         }
         repository.insertRag(rag)
     }

@@ -8,13 +8,16 @@ import com.example.chatwithai.data.local.database.RagDatabase
 import com.example.chatwithai.data.remote.NeuralApi
 import com.example.chatwithai.data.repository.RagRepositoryImpl
 import com.example.chatwithai.data.repository.ResponseRepositoryImpl
+import com.example.chatwithai.data.repository.SharedEventRepositoryImpl
 import com.example.chatwithai.domain.repository.RagRepository
 import com.example.chatwithai.domain.repository.ResponseRepository
+import com.example.chatwithai.domain.repository.SharedEventRepository
 import com.example.chatwithai.domain.use_case.AddRag
 import com.example.chatwithai.domain.use_case.DeleteRag
 import com.example.chatwithai.domain.use_case.GetRag
 import com.example.chatwithai.domain.use_case.GetRags
 import com.example.chatwithai.domain.use_case.RagUseCases
+import com.example.chatwithai.domain.use_case.UseRag
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -77,5 +80,17 @@ object AppModule {
             addRag = AddRag(repository),
             deleteRag = DeleteRag(repository)
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideUseRagUseCase(repository: SharedEventRepository): UseRag {
+        return UseRag(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSharedEventRepository(): SharedEventRepository {
+        return SharedEventRepositoryImpl()
     }
 }

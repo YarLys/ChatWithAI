@@ -6,6 +6,8 @@ import com.example.chatwithai.common.Resource
 import com.example.chatwithai.domain.model.Message
 import com.example.chatwithai.domain.model.Response
 import com.example.chatwithai.domain.use_case.RequestUseCase
+import com.example.chatwithai.domain.use_case.UseRag
+import com.example.chatwithai.presentation.rags.RagSharedEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val requestUseCase: RequestUseCase
+    private val requestUseCase: RequestUseCase,
+    private val eventUseCase: UseRag
 ) : ViewModel() {
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
@@ -22,6 +25,15 @@ class ChatViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(ChatListState())
     val state: MutableStateFlow<ChatListState> = _state
+
+    val events: StateFlow<RagSharedEvent?> = eventUseCase.observeEvents()
+
+    private val _userMessage = MutableStateFlow("")
+    val userMessage: StateFlow<String> = _userMessage
+
+    fun updateUserMessage(newText: String) {
+        _userMessage.value = newText
+    }
 
     fun sendMessage(message: String) {
         viewModelScope.launch {
@@ -54,6 +66,12 @@ class ChatViewModel @Inject constructor(
             } finally {
                 _state.value = ChatListState(isLoading = false)
             }
+        }
+    }
+
+    fun clearEvent() {
+        viewModelScope.launch {
+            eventUseCase.clearEvent()
         }
     }
 }

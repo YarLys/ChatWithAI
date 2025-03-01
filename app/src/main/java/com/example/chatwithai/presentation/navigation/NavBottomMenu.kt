@@ -18,10 +18,7 @@ import com.example.chatwithai.common.Constants.BottomNavItems
 fun NavBottomMenu(
     navController: NavController
 ) {
-    var selectedIndex by remember {
-        mutableIntStateOf(0)
-    }
-
+    
     NavigationBar(
         containerColor = Color.LightGray.copy(alpha = 0.5f)
     ) {

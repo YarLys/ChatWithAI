@@ -1,11 +1,13 @@
 package com.example.chatwithai.presentation.rags
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chatwithai.domain.model.Rag
 import com.example.chatwithai.domain.use_case.RagUseCases
+import com.example.chatwithai.domain.use_case.UseRag
 import com.example.chatwithai.domain.util.OrderType
 import com.example.chatwithai.domain.util.RagOrder
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RagViewModel @Inject constructor(
-    private val ragUseCases: RagUseCases
+    private val ragUseCases: RagUseCases,
+    private val useRagUseCase: UseRag
 ) : ViewModel() {
 
     private val _state = mutableStateOf(RagsState())
@@ -56,6 +59,23 @@ class RagViewModel @Inject constructor(
                 _state.value = state.value.copy(
                     isOrderSectionVisible = !state.value.isOrderSectionVisible
                 )
+            }
+            /*is RagsEvent.UseRag -> {
+                viewModelScope.launch {
+                    Log.d("RagViewModel", "Receive use rag event and send with usecase. ${event.rag.content}")
+                    useRagUseCase.sendEvent(event)
+                }
+            }*/
+        }
+    }
+
+    fun onSharedEvent(event: RagSharedEvent) {
+        when (event) {
+            is RagSharedEvent.UseRag -> {
+                viewModelScope.launch {
+                    Log.d("RagViewModel", "Receive use rag event and send with usecase. ${event.rag.content}")
+                    useRagUseCase.sendEvent(event)
+                }
             }
         }
     }

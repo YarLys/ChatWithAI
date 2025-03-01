@@ -2,12 +2,14 @@ package com.example.chatwithai.presentation.rags.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -23,7 +25,8 @@ import com.example.chatwithai.domain.model.Rag
 fun RagItem(
     rag: Rag,
     modifier: Modifier = Modifier,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onUseClick: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -50,14 +53,27 @@ fun RagItem(
                 overflow = TextOverflow.Ellipsis
             )
         }
-        IconButton(
-            onClick = onDeleteClick,
-            modifier = Modifier.align(Alignment.BottomEnd)
+        Row(
+            modifier = Modifier
+                .padding(8.dp)
+                .align(Alignment.BottomEnd)
         ) {
-            Icon(
-                imageVector = Icons.Filled.Delete,
-                contentDescription = "Delete rag"
-            )
+            IconButton(
+                onClick = onUseClick,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.KeyboardDoubleArrowUp,
+                    contentDescription = "Use rag"
+                )
+            }
+            IconButton(
+                onClick = onDeleteClick,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "Delete rag"
+                )
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.chatwithai.presentation.rags
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -131,6 +132,15 @@ fun RagScreen(
                                 if (result == SnackbarResult.ActionPerformed) {
                                     viewModel.onEvent(RagsEvent.RestoreRag)
                                 }
+                            }
+                        },
+                        onUseClick = {
+                            Log.d("RagScreen", "Send use rag event: ${rag.content}")
+                            viewModel.onSharedEvent(RagSharedEvent.UseRag(rag))
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "RAG добавлен в запрос"
+                                )
                             }
                         }
                     )

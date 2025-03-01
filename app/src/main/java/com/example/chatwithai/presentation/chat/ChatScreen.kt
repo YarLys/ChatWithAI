@@ -1,6 +1,7 @@
 package com.example.chatwithai.presentation.chat
 
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,14 +13,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.chatwithai.domain.model.Message
+import com.example.chatwithai.presentation.rags.RagSharedEvent
+import com.example.chatwithai.presentation.rags.RagsEvent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen() {
     val viewModel: ChatViewModel = hiltViewModel()
-    var userMessage by remember { mutableStateOf("") }
+    val userMessage by viewModel.userMessage.collectAsState()
     val messages by viewModel.messages.collectAsState()
     val state by viewModel.state.collectAsState() // loading state
+    val event by viewModel.events.collectAsState(null)
 
     // Состояние списка
     val listState = rememberLazyListState()
@@ -48,6 +52,25 @@ fun ChatScreen() {
             }
         }
 
+        // Added rag in request event
+        LaunchedEffect(event) {
+            event?.let {
+                when (it) {
+                    is RagSharedEvent.UseRag -> {   // adding in user request rag's message
+                        Log.d("ChatScreen", "Received use rag event. Added in request: ${it.rag.content}")
+                        Log.d("ChatScreen", "Usermessage: $userMessage")
+                        var newText = ""
+                        // should never happen, but check
+                        if (it.rag.content.isNotBlank()) {
+                            newText = userMessage + " " + it.rag.content
+                        }
+                        viewModel.updateUserMessage(newText)
+                        viewModel.clearEvent() // clear event after handling
+                    }
+                }
+            }
+        }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -55,7 +78,9 @@ fun ChatScreen() {
             TextField(
                 value = userMessage,
                 onValueChange = {
-                    if (!state.isLoading) userMessage = it
+                    if (!state.isLoading) {
+                        viewModel.updateUserMessage(it)
+                    }
                 }, // change only if it's not loading
                 modifier = Modifier
                     .weight(1f),
@@ -66,7 +91,7 @@ fun ChatScreen() {
                 onClick = {
                     if (userMessage.isNotBlank() && !state.isLoading) {
                         viewModel.sendMessage(userMessage)
-                        userMessage = ""
+                        viewModel.updateUserMessage("") // clear text after sending
                     }
                 },
                 modifier = Modifier
