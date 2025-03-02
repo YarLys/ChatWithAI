@@ -5,13 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chatwithai.common.Resource
 import com.example.chatwithai.domain.model.Message
+import com.example.chatwithai.domain.model.MessageEntity
 import com.example.chatwithai.domain.model.Response
 import com.example.chatwithai.domain.use_case.RequestUseCase
-import com.example.chatwithai.domain.use_case.UseRag
+import com.example.chatwithai.domain.use_case.messages.SaveMessage
+import com.example.chatwithai.domain.use_case.rags.UseRag
 import com.example.chatwithai.presentation.rags.RagSharedEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -19,7 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val requestUseCase: RequestUseCase,
-    private val eventUseCase: UseRag
+    private val eventUseCase: UseRag,
+    private val saveMessageUseCase: SaveMessage
 ) : ViewModel() {
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
@@ -75,6 +77,15 @@ class ChatViewModel @Inject constructor(
                         is Resource.Success -> {
                             val response = result.data ?: Response("")
                             _messages.value += Message(text = response.response, isRequest = false)
+
+                            // adding successful request in messages history
+                            saveMessageUseCase(
+                                MessageEntity(   // null id means create new message in db
+                                    request = message,
+                                    response = response.response,
+                                    timestamp = System.currentTimeMillis()
+                                )
+                            )
                         }
 
                         is Resource.Error -> {

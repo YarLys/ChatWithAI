@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chatwithai.domain.model.InvalidRagException
 import com.example.chatwithai.domain.model.Rag
-import com.example.chatwithai.domain.use_case.RagUseCases
+import com.example.chatwithai.domain.use_case.rags.RagUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow

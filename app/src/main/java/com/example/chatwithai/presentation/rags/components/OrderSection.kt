@@ -9,13 +9,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.chatwithai.domain.util.OrderType
-import com.example.chatwithai.domain.util.RagOrder
+import com.example.chatwithai.domain.util.ItemsOrder
 
 @Composable
 fun OrderSection(
     modifier: Modifier = Modifier,
-    ragOrder: RagOrder = RagOrder.Title(OrderType.Descending),
-    onOrderChange: (RagOrder) -> Unit
+    itemsOrder: ItemsOrder = ItemsOrder.Title(OrderType.Descending),
+    onOrderChange: (ItemsOrder) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -25,14 +25,14 @@ fun OrderSection(
         ) {
             DefaultRadioButton(   // order by title
                 text = "По заголовку",
-                selected = ragOrder is RagOrder.Title,
-                onSelect = { onOrderChange(RagOrder.Title(ragOrder.orderType)) }
+                selected = itemsOrder is ItemsOrder.Title,
+                onSelect = { onOrderChange(ItemsOrder.Title(itemsOrder.orderType)) }
             )
             Spacer(modifier = Modifier.width(8.dp))
             DefaultRadioButton(   // order by date
                 text = "По дате",
-                selected = ragOrder is RagOrder.Date,
-                onSelect = { onOrderChange(RagOrder.Date(ragOrder.orderType)) }
+                selected = itemsOrder is ItemsOrder.Date,
+                onSelect = { onOrderChange(ItemsOrder.Date(itemsOrder.orderType)) }
             )
         }
         Spacer(modifier = Modifier.width(16.dp))
@@ -41,17 +41,17 @@ fun OrderSection(
         ) {
             DefaultRadioButton(   // ascending order
                 text = "По возрастанию",
-                selected = ragOrder.orderType is OrderType.Ascending,
+                selected = itemsOrder.orderType is OrderType.Ascending,
                 onSelect = {
-                    onOrderChange(ragOrder.copy(OrderType.Ascending))
+                    onOrderChange(itemsOrder.copy(OrderType.Ascending))
                 }
             )
             Spacer(modifier = Modifier.width(8.dp))
             DefaultRadioButton(   // descending order
                 text = "По убыванию",
-                selected = ragOrder.orderType is OrderType.Descending,
+                selected = itemsOrder.orderType is OrderType.Descending,
                 onSelect = {
-                    onOrderChange(ragOrder.copy(OrderType.Descending))
+                    onOrderChange(itemsOrder.copy(OrderType.Descending))
                 }
             )
         }

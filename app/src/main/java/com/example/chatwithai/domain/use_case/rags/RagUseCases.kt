@@ -1,4 +1,4 @@
-package com.example.chatwithai.domain.use_case
+package com.example.chatwithai.domain.use_case.rags
 
 data class RagUseCases(
     val getRags: GetRags,

@@ -6,10 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chatwithai.domain.model.Rag
-import com.example.chatwithai.domain.use_case.RagUseCases
-import com.example.chatwithai.domain.use_case.UseRag
+import com.example.chatwithai.domain.use_case.rags.RagUseCases
+import com.example.chatwithai.domain.use_case.rags.UseRag
 import com.example.chatwithai.domain.util.OrderType
-import com.example.chatwithai.domain.util.RagOrder
+import com.example.chatwithai.domain.util.ItemsOrder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
@@ -31,17 +31,17 @@ class RagViewModel @Inject constructor(
     private var getRagsJob: Job? = null
 
     init {
-        getRags(RagOrder.Title(OrderType.Descending))
+        getRags(ItemsOrder.Date(OrderType.Descending))
     }
 
     fun onEvent(event: RagsEvent) {
         when (event) {
             is RagsEvent.Order -> {
-                if (state.value.ragOrder::class == event.ragOrder::class &&   // if chosen the same order as it's on screen
-                    state.value.ragOrder.orderType == event.ragOrder.orderType) {
+                if (state.value.itemsOrder::class == event.itemsOrder::class &&   // if chosen the same order as it's on screen
+                    state.value.itemsOrder.orderType == event.itemsOrder.orderType) {
                     return
                 }
-                getRags(event.ragOrder)
+                getRags(event.itemsOrder)
             }
             is RagsEvent.DeleteRag -> {
                 viewModelScope.launch {
@@ -74,12 +74,12 @@ class RagViewModel @Inject constructor(
         }
     }
 
-    private fun getRags(ragOrder: RagOrder) {
+    private fun getRags(itemsOrder: ItemsOrder) {
         getRagsJob?.cancel()
-        getRagsJob = ragUseCases.getRags(ragOrder).onEach { rags ->
+        getRagsJob = ragUseCases.getRags(itemsOrder).onEach { rags ->
             _state.value = state.value.copy(
                 rags = rags,
-                ragOrder = ragOrder
+                itemsOrder = itemsOrder
             )
         }.launchIn(viewModelScope)
     }

@@ -103,7 +103,7 @@ fun RagScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 16.dp),
-                    ragOrder = state.ragOrder,
+                    itemsOrder = state.itemsOrder,
                     onOrderChange = {
                         viewModel.onEvent(RagsEvent.Order(it))  // order has changed
                     }

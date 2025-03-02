@@ -56,7 +56,7 @@ fun NavHostContainer(
 
             // route: history
             composable(Screen.HistoryScreen.route) {
-                HistoryScreen()
+                HistoryScreen(navController)
             }
         }
     )

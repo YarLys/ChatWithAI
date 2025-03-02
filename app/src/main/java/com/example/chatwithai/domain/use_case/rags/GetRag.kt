@@ -1,4 +1,4 @@
-package com.example.chatwithai.domain.use_case
+package com.example.chatwithai.domain.use_case.rags
 
 import com.example.chatwithai.domain.model.Rag
 import com.example.chatwithai.domain.repository.RagRepository
