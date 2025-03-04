@@ -23,6 +23,7 @@ import com.example.chatwithai.domain.use_case.messages.DeleteAllMessages
 import com.example.chatwithai.domain.use_case.messages.DeleteMessage
 import com.example.chatwithai.domain.use_case.messages.GetMessage
 import com.example.chatwithai.domain.use_case.messages.GetMessages
+import com.example.chatwithai.domain.use_case.messages.GetStarredMessages
 import com.example.chatwithai.domain.use_case.messages.MessageUseCases
 import com.example.chatwithai.domain.use_case.messages.UpdateMessage
 import com.example.chatwithai.domain.use_case.messages.UseMessage
@@ -140,7 +141,8 @@ object AppModule {
             deleteAllMessages = DeleteAllMessages(repository),
             getMessage = GetMessage(repository),
             addMessage = AddMessage(repository),
-            updateMessage = UpdateMessage(repository)
+            updateMessage = UpdateMessage(repository),
+            getStarredMessages = GetStarredMessages(repository)
         )
     }
 

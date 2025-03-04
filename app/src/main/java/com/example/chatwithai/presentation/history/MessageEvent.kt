@@ -10,4 +10,5 @@ sealed class MessageEvent {
     object ToggleOrderSection: MessageEvent()
     object DeleteHistory: MessageEvent()
     object RestoreMessage: MessageEvent()
+    object ChangeStarredListVisibility: MessageEvent()
 }

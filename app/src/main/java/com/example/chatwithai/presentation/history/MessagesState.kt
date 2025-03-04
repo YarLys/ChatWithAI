@@ -7,5 +7,6 @@ import com.example.chatwithai.domain.util.OrderType
 data class MessagesState(
     val messages: List<MessageEntity> = emptyList(),
     val itemsOrder: ItemsOrder = ItemsOrder.Date(OrderType.Descending),
-    val isOrderSectionVisible: Boolean = false
+    val isOrderSectionVisible: Boolean = false,
+    val areStarredChosen: Boolean = false
 )

@@ -73,6 +73,12 @@ class HistoryViewModel @Inject constructor(
                     ))
                 }
             }
+            is MessageEvent.ChangeStarredListVisibility -> {
+                _state.value = state.value.copy(
+                    areStarredChosen = !state.value.areStarredChosen
+                )
+                getMessages(state.value.itemsOrder)
+            }
         }
     }
 
@@ -89,11 +95,24 @@ class HistoryViewModel @Inject constructor(
 
     private fun getMessages(itemsOrder: ItemsOrder) {
         getMessagesJob?.cancel()
-        getMessagesJob = messageUseCases.getMessages(itemsOrder).onEach { messages ->
-            _state.value = state.value.copy(
-                messages = messages,
-                itemsOrder = itemsOrder
-            )
-        }.launchIn(viewModelScope)
+        getMessagesJob =
+            when (!state.value.areStarredChosen) {
+                true -> {
+                    messageUseCases.getMessages(itemsOrder).onEach { messages ->
+                        _state.value = state.value.copy(
+                            messages = messages,
+                            itemsOrder = itemsOrder
+                        )
+                    }.launchIn(viewModelScope)
+                }
+                false -> {
+                    messageUseCases.getStarredMessages(itemsOrder).onEach { messages ->
+                        _state.value = state.value.copy(
+                            messages = messages,
+                            itemsOrder = itemsOrder
+                        )
+                    }.launchIn(viewModelScope)
+                }
+            }
     }
 }

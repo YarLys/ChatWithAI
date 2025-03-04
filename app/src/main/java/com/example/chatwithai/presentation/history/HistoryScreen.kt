@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -33,6 +34,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -64,6 +66,7 @@ fun HistoryScreen(
                 onClick = {
                     viewModel.onEvent(MessageEvent.DeleteHistory)
                     scope.launch {
+                        snackbarHostState.currentSnackbarData?.dismiss() // close current snackbar
                         snackbarHostState.showSnackbar(message = "История запросов удалена")
                     }
                 },
@@ -88,25 +91,30 @@ fun HistoryScreen(
                     text = "История запросов",
                     style = MaterialTheme.typography.titleLarge
                 )
-                IconButton(
-                    onClick = {
-                        // todo navigate to another screen
-                    }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "StarredMessages"
-                    )
-                }
-                IconButton(
-                    onClick = {
-                        viewModel.onEvent(MessageEvent.ToggleOrderSection)
+                    IconButton(
+                        onClick = {
+                            viewModel.onEvent(MessageEvent.ChangeStarredListVisibility)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = if (!state.areStarredChosen) Icons.Outlined.StarOutline else Icons.Default.Star,
+                            contentDescription = "StarredMessages"
+                        )
                     }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.List,
-                        contentDescription = "Sort"
-                    )
+                    IconButton(
+                        onClick = {
+                            viewModel.onEvent(MessageEvent.ToggleOrderSection)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.List,
+                            contentDescription = "Sort"
+                        )
+                    }
                 }
             }
             AnimatedVisibility(
@@ -141,6 +149,7 @@ fun HistoryScreen(
                             Log.d("HistoryScreen", "Send use request event: ")
                             viewModel.onSharedEvent(MessageSharedEvent.UseMessage(message))
                             scope.launch {
+                                snackbarHostState.currentSnackbarData?.dismiss()
                                 snackbarHostState.showSnackbar(
                                     message = "Запрос использован"
                                 )
@@ -149,6 +158,7 @@ fun HistoryScreen(
                         onDeleteClick = {
                             viewModel.onEvent(MessageEvent.DeleteMessage(message))
                             scope.launch {
+                                snackbarHostState.currentSnackbarData?.dismiss()
                                 val result = snackbarHostState.showSnackbar(
                                     message = "Запрос удален",
                                     actionLabel = "Отмена"
@@ -161,8 +171,9 @@ fun HistoryScreen(
                         onStarClick = {
                             viewModel.onEvent(MessageEvent.UpdateMessage(message))
                             scope.launch {
+                                snackbarHostState.currentSnackbarData?.dismiss()
                                 snackbarHostState.showSnackbar(
-                                    message = if (message.isStarred) "Запрос добавлен в избранное" else "Запрос удалён из избранного"
+                                    message = if (message.isStarred) "Запрос удалён из избранного" else "Запрос добавлен в избранное"
                                 )
                             }
                         }
