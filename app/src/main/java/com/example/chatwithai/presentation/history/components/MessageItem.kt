@@ -1,15 +1,11 @@
 package com.example.chatwithai.presentation.history.components
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowUp
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,16 +21,20 @@ import com.example.chatwithai.domain.model.MessageEntity
 fun MessageItem(
     message: MessageEntity,
     modifier: Modifier = Modifier,
-    onUseClick: () -> Unit
+    onUseClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onStarClick: () -> Unit
 ) {
-    Box(
+    Row(
         modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .padding(end = 32.dp)
+                .weight(1f)
+                .padding(end = 16.dp)
         ) {
             Text(
                 text = message.request,
@@ -52,27 +52,38 @@ fun MessageItem(
                 overflow = TextOverflow.Ellipsis
             )
         }
+
         Row(
             modifier = Modifier
-                .padding(8.dp)
-                .align(Alignment.BottomEnd)
+                .wrapContentSize()
         ) {
             IconButton(
+                onClick = onStarClick,
+                modifier = Modifier.size(48.dp)
+            ) {
+                Icon(
+                    imageVector = if (message.isStarred) Icons.Default.Star else Icons.Outlined.StarOutline,
+                    contentDescription = "Star request"
+                )
+            }
+            IconButton(
                 onClick = onUseClick,
+                modifier = Modifier.size(48.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.KeyboardDoubleArrowUp,
                     contentDescription = "Use request"
                 )
             }
-            /*IconButton(
+            IconButton(
                 onClick = onDeleteClick,
+                modifier = Modifier.size(48.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Delete,
-                    contentDescription = "Delete rag"
+                    contentDescription = "Delete message"
                 )
-            }*/
+            }
         }
     }
 }

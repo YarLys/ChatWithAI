@@ -9,15 +9,23 @@ import com.example.chatwithai.common.Constants.DATABASE_NAME
 import com.example.chatwithai.data.local.database.RagDatabase
 import com.example.chatwithai.data.remote.NeuralApi
 import com.example.chatwithai.data.repository.MessageRepositoryImpl
+import com.example.chatwithai.data.repository.MessageSharedEventRepositoryImpl
 import com.example.chatwithai.data.repository.RagRepositoryImpl
 import com.example.chatwithai.data.repository.ResponseRepositoryImpl
-import com.example.chatwithai.data.repository.SharedEventRepositoryImpl
+import com.example.chatwithai.data.repository.RagSharedEventRepositoryImpl
 import com.example.chatwithai.domain.repository.MessageRepository
+import com.example.chatwithai.domain.repository.MessageSharedEventRepository
 import com.example.chatwithai.domain.repository.RagRepository
 import com.example.chatwithai.domain.repository.ResponseRepository
-import com.example.chatwithai.domain.repository.SharedEventRepository
+import com.example.chatwithai.domain.repository.RagSharedEventRepository
+import com.example.chatwithai.domain.use_case.messages.AddMessage
+import com.example.chatwithai.domain.use_case.messages.DeleteAllMessages
+import com.example.chatwithai.domain.use_case.messages.DeleteMessage
+import com.example.chatwithai.domain.use_case.messages.GetMessage
 import com.example.chatwithai.domain.use_case.messages.GetMessages
 import com.example.chatwithai.domain.use_case.messages.MessageUseCases
+import com.example.chatwithai.domain.use_case.messages.UpdateMessage
+import com.example.chatwithai.domain.use_case.messages.UseMessage
 import com.example.chatwithai.domain.use_case.rags.AddRag
 import com.example.chatwithai.domain.use_case.rags.DeleteRag
 import com.example.chatwithai.domain.use_case.rags.GetRag
@@ -45,8 +53,8 @@ object AppModule {
         val httpClient: OkHttpClient.Builder = OkHttpClient.Builder()
             .callTimeout(2, TimeUnit.MINUTES)
             .connectTimeout(20, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
         return Retrofit.Builder()
             .baseUrl(Constants.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
@@ -77,6 +85,17 @@ object AppModule {
         }
     }
 
+    val MIGRATION_2_3 = object : Migration(2, 3) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL(
+                """
+                ALTER TABLE history
+                ADD COLUMN isStarred INTEGER NOT NULL DEFAULT 0
+                """
+            )
+        }
+    }
+
     @Provides
     @Singleton
     fun provideRagDatabase(app: Application): RagDatabase {
@@ -85,7 +104,7 @@ object AppModule {
             RagDatabase::class.java,
             DATABASE_NAME
         )
-            .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
             .build()
     }
 
@@ -116,19 +135,36 @@ object AppModule {
     @Singleton
     fun provideMessageUseCases(repository: MessageRepository): MessageUseCases {
         return MessageUseCases(
-            getMessages = GetMessages(repository)
+            getMessages = GetMessages(repository),
+            deleteMessage = DeleteMessage(repository),
+            deleteAllMessages = DeleteAllMessages(repository),
+            getMessage = GetMessage(repository),
+            addMessage = AddMessage(repository),
+            updateMessage = UpdateMessage(repository)
         )
     }
 
     @Provides
     @Singleton
-    fun provideUseRagUseCase(repository: SharedEventRepository): UseRag {
+    fun provideUseRagUseCase(repository: RagSharedEventRepository): UseRag {
         return UseRag(repository)
     }
 
     @Provides
     @Singleton
-    fun provideSharedEventRepository(): SharedEventRepository {
-        return SharedEventRepositoryImpl()
+    fun provideUseMessageUseCase(repository: MessageSharedEventRepository): UseMessage {
+        return UseMessage(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRagSharedEventRepository(): RagSharedEventRepository {
+        return RagSharedEventRepositoryImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideMessageSharedEventRepository(): MessageSharedEventRepository {
+        return MessageSharedEventRepositoryImpl()
     }
 }

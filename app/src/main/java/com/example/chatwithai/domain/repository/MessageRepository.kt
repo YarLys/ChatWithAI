@@ -12,4 +12,10 @@ interface MessageRepository {
     suspend fun insertMessage(messageEntity: MessageEntity)
 
     suspend fun deleteMessage(messageEntity: MessageEntity)
+
+    suspend fun updateMessage(messageEntity: MessageEntity)
+
+    suspend fun deleteAllMessages()
+
+    fun getStarredMessages(): Flow<List<MessageEntity>>
 }

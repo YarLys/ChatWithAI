@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.chatwithai.domain.model.MessageEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -21,4 +22,13 @@ interface MessageDao {
 
     @Delete
     suspend fun deleteMessage(messageEntity: MessageEntity)
+
+    @Update
+    suspend fun updateMessage(messageEntity: MessageEntity)
+
+    @Query("DELETE FROM history")
+    suspend fun deleteAllMessages()
+
+    @Query("SELECT * FROM history WHERE isStarred = 1")
+    fun getStarredMessages(): Flow<List<MessageEntity>>
 }

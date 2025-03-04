@@ -23,4 +23,16 @@ class MessageRepositoryImpl(
     override suspend fun deleteMessage(messageEntity: MessageEntity) {
         dao.deleteMessage(messageEntity)
     }
+
+    override suspend fun updateMessage(messageEntity: MessageEntity) {
+        dao.updateMessage(messageEntity)
+    }
+
+    override suspend fun deleteAllMessages() {
+        dao.deleteAllMessages()
+    }
+
+    override fun getStarredMessages(): Flow<List<MessageEntity>> {
+        return dao.getStarredMessages()
+    }
 }

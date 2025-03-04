@@ -18,7 +18,6 @@ import com.example.chatwithai.common.Constants.BottomNavItems
 fun NavBottomMenu(
     navController: NavController
 ) {
-    
     NavigationBar(
         containerColor = Color.LightGray.copy(alpha = 0.5f)
     ) {

@@ -12,6 +12,7 @@ import androidx.navigation.navArgument
 import com.example.chatwithai.presentation.add_edit_rag.AddEditRagScreen
 import com.example.chatwithai.presentation.chat.ChatScreen
 import com.example.chatwithai.presentation.history.HistoryScreen
+import com.example.chatwithai.presentation.inspect_message.InspectMessageScreen
 import com.example.chatwithai.presentation.rags.RagScreen
 import com.example.chatwithai.presentation.util.Screen
 
@@ -57,6 +58,21 @@ fun NavHostContainer(
             // route: history
             composable(Screen.HistoryScreen.route) {
                 HistoryScreen(navController)
+            }
+
+            // route: inspect message
+            composable(
+                Screen.InspectMessageScreen.route + "?messageId={messageId}",
+                arguments = listOf(
+                    navArgument(   // define an Id argument
+                        name = "messageId"
+                    ) {
+                        type = NavType.IntType
+                        defaultValue = -1
+                    }
+                )
+            ) {
+                InspectMessageScreen()
             }
         }
     )

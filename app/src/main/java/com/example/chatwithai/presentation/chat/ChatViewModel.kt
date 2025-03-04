@@ -9,7 +9,9 @@ import com.example.chatwithai.domain.model.MessageEntity
 import com.example.chatwithai.domain.model.Response
 import com.example.chatwithai.domain.use_case.RequestUseCase
 import com.example.chatwithai.domain.use_case.messages.SaveMessage
+import com.example.chatwithai.domain.use_case.messages.UseMessage
 import com.example.chatwithai.domain.use_case.rags.UseRag
+import com.example.chatwithai.presentation.history.MessageSharedEvent
 import com.example.chatwithai.presentation.rags.RagSharedEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,8 +22,9 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val requestUseCase: RequestUseCase,
-    private val eventUseCase: UseRag,
-    private val saveMessageUseCase: SaveMessage
+    private val ragEventUseCase: UseRag,
+    private val saveMessageUseCase: SaveMessage,
+    private val messageEventUseCase: UseMessage
 ) : ViewModel() {
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
@@ -35,19 +38,26 @@ class ChatViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            eventUseCase.observeEvents().collect { event ->
+            ragEventUseCase.observeEvents().collect { event ->
                 event?.let {
-                    handleEvent(it)
+                    handleRagEvent(it)
+                }
+            }
+        }
+        viewModelScope.launch {
+            messageEventUseCase.observeEvents().collect{ event ->
+                event?.let {
+                    handleMessageEvent(it)
                 }
             }
         }
     }
 
-    fun handleEvent(event: RagSharedEvent) {
+    fun handleRagEvent(event: RagSharedEvent) {
         when (event) {
             is RagSharedEvent.UseRag -> {   // adding in user request rag's message
                 Log.d("ChatScreen", "Received use rag event. Added in request: ${event.rag.content}")
-                Log.d("ChatScreen", "Usermessage: $userMessage")
+                Log.d("ChatScreen", "Usermessage: ${userMessage.value}")
                 var newText = ""
                 // should never happen, but check
                 if (event.rag.content.isNotBlank()) {
@@ -56,7 +66,22 @@ class ChatViewModel @Inject constructor(
                 updateUserMessage(newText)
             }
         }
-        clearEvent() // clear event after handling
+        clearEvent(1) // clear event after handling
+    }
+
+    fun handleMessageEvent(event: MessageSharedEvent) {
+        when (event) {
+            is MessageSharedEvent.UseMessage -> {
+                Log.d("ChatScreen", "Received use message event. Added in request: ${event.message.request}")
+                Log.d("ChatScreen", "Usermessage: ${userMessage.value}")
+                var newText = ""
+                if (event.message.request.isNotBlank()) {
+                    newText = userMessage.value + " " + event.message.request
+                } else newText = userMessage.value
+                updateUserMessage(newText)
+            }
+        }
+        clearEvent(2) // clear event after handling
     }
 
     fun updateUserMessage(newText: String) {
@@ -93,6 +118,14 @@ class ChatViewModel @Inject constructor(
                                 text = result.message ?: "An unexpected error occured",
                                 isRequest = false
                             )
+
+                            saveMessageUseCase(
+                                MessageEntity(   // null id means create new message in db
+                                    request = message,
+                                    response = result.message ?: "",
+                                    timestamp = System.currentTimeMillis()
+                                )
+                            )
                         }
 
                         is Resource.Loading -> {
@@ -106,9 +139,18 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun clearEvent() {
-        viewModelScope.launch {
-            eventUseCase.clearEvent()
+    fun clearEvent(flag: Int) {  // 1 = rag event, 2 = message event
+        when (flag) {
+            1 -> {
+                viewModelScope.launch {
+                    ragEventUseCase.clearEvent()
+                }
+            }
+            2 -> {
+                viewModelScope.launch {
+                    messageEventUseCase.clearEvent()
+                }
+            }
         }
     }
 }

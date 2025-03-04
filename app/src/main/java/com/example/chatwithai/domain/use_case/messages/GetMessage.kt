@@ -1,0 +1,13 @@
+package com.example.chatwithai.domain.use_case.messages
+
+import com.example.chatwithai.domain.model.MessageEntity
+import com.example.chatwithai.domain.repository.MessageRepository
+import javax.inject.Inject
+
+class GetMessage @Inject constructor(
+    private val repository: MessageRepository
+) {
+    suspend operator fun invoke(id: Int): MessageEntity? {
+        return repository.getMessageById(id)
+    }
+}

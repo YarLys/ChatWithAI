@@ -4,7 +4,7 @@ import com.example.chatwithai.presentation.rags.RagSharedEvent
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
-interface SharedEventRepository {
+interface RagSharedEventRepository {
     val _events: MutableSharedFlow<RagSharedEvent?>
     val events: SharedFlow<RagSharedEvent?>
 
