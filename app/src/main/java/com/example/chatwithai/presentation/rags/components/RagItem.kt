@@ -7,9 +7,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardDoubleArrowUp
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,7 +29,8 @@ fun RagItem(
     rag: Rag,
     modifier: Modifier = Modifier,
     onDeleteClick: () -> Unit,
-    onUseClick: () -> Unit
+    onUseClick: () -> Unit,
+    onStarClick: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -58,6 +62,15 @@ fun RagItem(
                 .padding(8.dp)
                 .align(Alignment.BottomEnd)
         ) {
+            IconButton(
+                onClick = onStarClick,
+                modifier = Modifier.size(48.dp)
+            ) {
+                Icon(
+                    imageVector = if (rag.isStarred) Icons.Default.Star else Icons.Outlined.StarOutline,
+                    contentDescription = "Star rag"
+                )
+            }
             IconButton(
                 onClick = onUseClick,
             ) {

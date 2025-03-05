@@ -11,7 +11,7 @@ import com.example.chatwithai.domain.model.Rag
 
 @Database(
     entities = [Rag::class, MessageEntity::class],
-    version = 3
+    version = 4
 )
 abstract class RagDatabase: RoomDatabase() {
 

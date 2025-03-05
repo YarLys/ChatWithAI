@@ -16,11 +16,19 @@ class RagRepositoryImpl(
         return dao.getRagById(id)
     }
 
+    override fun getStarredRags(): Flow<List<Rag>> {
+        return dao.getStarredRags()
+    }
+
     override suspend fun insertRag(rag: Rag) {
         return dao.insertRag(rag)
     }
 
     override suspend fun deleteRag(rag: Rag) {
         return dao.deleteRag(rag)
+    }
+
+    override suspend fun updateRag(rag: Rag) {
+        dao.updateRag(rag)
     }
 }

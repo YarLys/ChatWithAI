@@ -21,6 +21,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -39,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.chatwithai.presentation.history.MessageEvent
 import com.example.chatwithai.presentation.rags.components.OrderSection
 import com.example.chatwithai.presentation.rags.components.RagItem
 import com.example.chatwithai.presentation.util.Screen
@@ -83,15 +86,30 @@ fun RagScreen(
                     text = "Ваши RAGs",
                     style = MaterialTheme.typography.titleLarge
                 )
-                IconButton(
-                    onClick = {
-                        viewModel.onEvent(RagsEvent.ToggleOrderSection)
-                    }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.List,
-                        contentDescription = "Sort"
-                    )
+                    IconButton(
+                        onClick = {
+                            viewModel.onEvent(RagsEvent.ChangeStarredListVisibility)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = if (!state.areStarredChosen) Icons.Outlined.StarOutline else Icons.Default.Star,
+                            contentDescription = "StarredMessages"
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            viewModel.onEvent(RagsEvent.ToggleOrderSection)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.List,
+                            contentDescription = "Sort"
+                        )
+                    }
                 }
             }
             AnimatedVisibility(
@@ -140,6 +158,15 @@ fun RagScreen(
                             scope.launch {
                                 snackbarHostState.showSnackbar(
                                     message = "RAG добавлен в запрос"
+                                )
+                            }
+                        },
+                        onStarClick = {
+                            viewModel.onEvent(RagsEvent.UpdateRag(rag))
+                            scope.launch {
+                                snackbarHostState.currentSnackbarData?.dismiss()
+                                snackbarHostState.showSnackbar(
+                                    message = if (rag.isStarred) "RAG удалён из избранного" else "RAG добавлен в избранное"
                                 )
                             }
                         }

@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 class UpdateMessage @Inject constructor(
     private val repository: MessageRepository
-){
+) {
     suspend operator fun invoke(message: MessageEntity) {
         Log.d("MessageRepository", "Update message: ${message.request}, isStarred: ${message.isStarred}")
         repository.updateMessage(message)

@@ -4,5 +4,7 @@ data class RagUseCases(
     val getRags: GetRags,
     val getRag: GetRag,
     val deleteRag: DeleteRag,
-    val addRag: AddRag
+    val addRag: AddRag,
+    val updateRag: UpdateRag,
+    val getStarredRags: GetStarredRags
 )

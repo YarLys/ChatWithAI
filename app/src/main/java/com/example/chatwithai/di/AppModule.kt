@@ -31,7 +31,9 @@ import com.example.chatwithai.domain.use_case.rags.AddRag
 import com.example.chatwithai.domain.use_case.rags.DeleteRag
 import com.example.chatwithai.domain.use_case.rags.GetRag
 import com.example.chatwithai.domain.use_case.rags.GetRags
+import com.example.chatwithai.domain.use_case.rags.GetStarredRags
 import com.example.chatwithai.domain.use_case.rags.RagUseCases
+import com.example.chatwithai.domain.use_case.rags.UpdateRag
 import com.example.chatwithai.domain.use_case.rags.UseRag
 import dagger.Module
 import dagger.Provides
@@ -97,6 +99,17 @@ object AppModule {
         }
     }
 
+    val MIGRATION_3_4 = object : Migration(3, 4) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL(
+                """
+                ALTER TABLE rag
+                ADD COLUMN isStarred INTEGER NOT NULL DEFAULT 0
+                """
+            )
+        }
+    }
+
     @Provides
     @Singleton
     fun provideRagDatabase(app: Application): RagDatabase {
@@ -105,7 +118,7 @@ object AppModule {
             RagDatabase::class.java,
             DATABASE_NAME
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
             .build()
     }
 
@@ -128,7 +141,9 @@ object AppModule {
             getRags = GetRags(repository),
             getRag = GetRag(repository),
             addRag = AddRag(repository),
-            deleteRag = DeleteRag(repository)
+            deleteRag = DeleteRag(repository),
+            updateRag = UpdateRag(repository),
+            getStarredRags = GetStarredRags(repository)
         )
     }
 

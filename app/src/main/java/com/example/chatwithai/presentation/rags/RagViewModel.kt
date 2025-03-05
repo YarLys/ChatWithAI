@@ -55,10 +55,23 @@ class RagViewModel @Inject constructor(
                     recentlyDeletedRag = null
                 }
             }
+            is RagsEvent.UpdateRag -> {
+                viewModelScope.launch {
+                    ragUseCases.updateRag(event.rag.copy(
+                        isStarred = !event.rag.isStarred
+                    ))
+                }
+            }
             is RagsEvent.ToggleOrderSection -> {
                 _state.value = state.value.copy(
                     isOrderSectionVisible = !state.value.isOrderSectionVisible
                 )
+            }
+            is RagsEvent.ChangeStarredListVisibility -> {
+                _state.value = state.value.copy(
+                    areStarredChosen = !state.value.areStarredChosen
+                )
+                getRags(state.value.itemsOrder)
             }
         }
     }
@@ -76,11 +89,24 @@ class RagViewModel @Inject constructor(
 
     private fun getRags(itemsOrder: ItemsOrder) {
         getRagsJob?.cancel()
-        getRagsJob = ragUseCases.getRags(itemsOrder).onEach { rags ->
-            _state.value = state.value.copy(
-                rags = rags,
-                itemsOrder = itemsOrder
-            )
-        }.launchIn(viewModelScope)
+        getRagsJob =
+            when (state.value.areStarredChosen) {
+                false -> {
+                    ragUseCases.getRags(itemsOrder).onEach { rags ->
+                        _state.value = state.value.copy(
+                            rags = rags,
+                            itemsOrder = itemsOrder
+                        )
+                    }.launchIn(viewModelScope)
+                }
+                true -> {
+                    ragUseCases.getStarredRags(itemsOrder).onEach { rags ->
+                        _state.value = state.value.copy(
+                            rags = rags,
+                            itemsOrder = itemsOrder
+                        )
+                    }.launchIn(viewModelScope)
+                }
+            }
     }
 }

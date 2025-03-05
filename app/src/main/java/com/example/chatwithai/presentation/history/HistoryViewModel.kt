@@ -96,8 +96,8 @@ class HistoryViewModel @Inject constructor(
     private fun getMessages(itemsOrder: ItemsOrder) {
         getMessagesJob?.cancel()
         getMessagesJob =
-            when (!state.value.areStarredChosen) {
-                true -> {
+            when (state.value.areStarredChosen) {
+                false -> {
                     messageUseCases.getMessages(itemsOrder).onEach { messages ->
                         _state.value = state.value.copy(
                             messages = messages,
@@ -105,7 +105,7 @@ class HistoryViewModel @Inject constructor(
                         )
                     }.launchIn(viewModelScope)
                 }
-                false -> {
+                true -> {
                     messageUseCases.getStarredMessages(itemsOrder).onEach { messages ->
                         _state.value = state.value.copy(
                             messages = messages,

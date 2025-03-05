@@ -8,6 +8,7 @@ data class Rag(
     val title: String, // goal, role, environment
     val content: String,   // what's inside rag
     val timestamp: Long,  // date
+    val isStarred: Boolean = false,
     @PrimaryKey val id: Int? = null
 )
 

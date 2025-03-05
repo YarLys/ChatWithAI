@@ -7,9 +7,13 @@ interface RagRepository {
 
     fun getAllRags(): Flow<List<Rag>>
 
+    fun getStarredRags(): Flow<List<Rag>>
+
     suspend fun getRagById(id: Int): Rag?
 
     suspend fun insertRag(rag: Rag)
 
     suspend fun deleteRag(rag: Rag)
+
+    suspend fun updateRag(rag: Rag)
 }
