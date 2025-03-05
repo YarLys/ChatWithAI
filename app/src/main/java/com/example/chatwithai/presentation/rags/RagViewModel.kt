@@ -10,8 +10,12 @@ import com.example.chatwithai.domain.use_case.rags.RagUseCases
 import com.example.chatwithai.domain.use_case.rags.UseRag
 import com.example.chatwithai.domain.util.OrderType
 import com.example.chatwithai.domain.util.ItemsOrder
+import com.example.chatwithai.presentation.history.MessageEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -23,8 +27,14 @@ class RagViewModel @Inject constructor(
     private val useRagUseCase: UseRag
 ) : ViewModel() {
 
-    private val _state = mutableStateOf(RagsState())
-    val state: State<RagsState> = _state
+    private val _state = MutableStateFlow(RagsState())
+    val state: StateFlow<RagsState> = _state
+
+    private val _searchText = MutableStateFlow("")
+    val searchText: StateFlow<String> = _searchText
+
+    private val _filteredRags = mutableStateOf<List<Rag>>(emptyList())
+    val filteredRags: State<List<Rag>> = _filteredRags
 
     private var recentlyDeletedRag: Rag? = null
 
@@ -32,6 +42,22 @@ class RagViewModel @Inject constructor(
 
     init {
         getRags(ItemsOrder.Date(OrderType.Descending))
+
+        viewModelScope.launch {
+            combine(_searchText,_state) { searchText, state ->
+                if (searchText.isBlank()) {
+                    state.rags
+                }
+                else {
+                    state.rags.filter { rag ->
+                        rag.title.contains(searchText, ignoreCase = true) ||
+                        rag.content.contains(searchText, ignoreCase = true)
+                    }
+                }
+            }.collect { filteredRags ->
+                _filteredRags.value = filteredRags
+            }
+        }
     }
 
     fun onEvent(event: RagsEvent) {
@@ -72,6 +98,9 @@ class RagViewModel @Inject constructor(
                     areStarredChosen = !state.value.areStarredChosen
                 )
                 getRags(state.value.itemsOrder)
+            }
+            is RagsEvent.onSearchTextChanged -> {
+                _searchText.value = event.text
             }
         }
     }

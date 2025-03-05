@@ -7,6 +7,7 @@ sealed class MessageEvent {
     data class Order(val itemsOrder: ItemsOrder): MessageEvent()
     data class DeleteMessage(val message: MessageEntity): MessageEvent()
     data class UpdateMessage(val message: MessageEntity): MessageEvent()
+    data class onSearchTextChanged(val text: String): MessageEvent()
     object ToggleOrderSection: MessageEvent()
     object DeleteHistory: MessageEvent()
     object RestoreMessage: MessageEvent()

@@ -12,6 +12,9 @@ import com.example.chatwithai.domain.util.ItemsOrder
 import com.example.chatwithai.domain.util.OrderType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -24,8 +27,14 @@ class HistoryViewModel @Inject constructor(
     private val useMessage: UseMessage
 ): ViewModel() {
 
-    private val _state = mutableStateOf(MessagesState())
-    val state: State<MessagesState> = _state
+    private val _state = MutableStateFlow(MessagesState())
+    val state: StateFlow<MessagesState> = _state
+
+    private val _searchText = MutableStateFlow("")
+    val searchText: StateFlow<String> = _searchText
+
+    private val _filteredMessages = mutableStateOf<List<MessageEntity>>(emptyList())
+    val filteredMessages: State<List<MessageEntity>> = _filteredMessages
 
     private var recentlyDeletedMessage: MessageEntity? = null
 
@@ -33,6 +42,22 @@ class HistoryViewModel @Inject constructor(
 
     init {
         getMessages(ItemsOrder.Date(OrderType.Descending))
+
+        viewModelScope.launch {
+            combine(_searchText,_state) { searchText, state ->
+                if (searchText.isBlank()) {
+                    state.messages
+                }
+                else {
+                    state.messages.filter { message ->
+                        message.request.contains(searchText, ignoreCase = true) ||
+                        message.response.contains(searchText, ignoreCase = true)
+                    }
+                }
+            }.collect { filteredMessages ->
+                _filteredMessages.value = filteredMessages
+            }
+        }
     }
 
     fun onEvent(event: MessageEvent) {
@@ -78,6 +103,9 @@ class HistoryViewModel @Inject constructor(
                     areStarredChosen = !state.value.areStarredChosen
                 )
                 getMessages(state.value.itemsOrder)
+            }
+            is MessageEvent.onSearchTextChanged -> {
+                _searchText.value = event.text
             }
         }
     }

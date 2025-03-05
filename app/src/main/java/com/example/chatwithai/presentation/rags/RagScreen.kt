@@ -32,8 +32,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -41,7 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.chatwithai.presentation.history.MessageEvent
+import com.example.chatwithai.presentation.components.SearchBar
 import com.example.chatwithai.presentation.rags.components.OrderSection
 import com.example.chatwithai.presentation.rags.components.RagItem
 import com.example.chatwithai.presentation.util.Screen
@@ -55,9 +56,12 @@ fun RagScreen(
 ) {
     val viewModel: RagViewModel = hiltViewModel()
 
-    val state = viewModel.state.value
+    val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    val searchText by viewModel.searchText.collectAsState()
+    val filteredRags = viewModel.filteredRags.value
 
     Scaffold(
         floatingActionButton = {
@@ -66,8 +70,8 @@ fun RagScreen(
                     navController.navigate(Screen.AddEditRagScreen.route)
                 },
                 containerColor = MaterialTheme.colorScheme.primary
-                ) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add rag")
+            ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add rag")
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -82,34 +86,30 @@ fun RagScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Ваши RAGs",
-                    style = MaterialTheme.typography.titleLarge
+                SearchBar(
+                    searchText = searchText,
+                    onSearchTextChanged = { viewModel.onEvent(RagsEvent.onSearchTextChanged(it)) }
                 )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                IconButton(
+                    onClick = {
+                        viewModel.onEvent(RagsEvent.ChangeStarredListVisibility)
+                    }
                 ) {
-                    IconButton(
-                        onClick = {
-                            viewModel.onEvent(RagsEvent.ChangeStarredListVisibility)
-                        }
-                    ) {
-                        Icon(
-                            imageVector = if (!state.areStarredChosen) Icons.Outlined.StarOutline else Icons.Default.Star,
-                            contentDescription = "StarredMessages"
-                        )
+                    Icon(
+                        imageVector = if (!state.areStarredChosen) Icons.Outlined.StarOutline else Icons.Default.Star,
+                        contentDescription = "StarredMessages",
+                        tint = if (state.areStarredChosen) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                IconButton(
+                    onClick = {
+                        viewModel.onEvent(RagsEvent.ToggleOrderSection)
                     }
-                    IconButton(
-                        onClick = {
-                            viewModel.onEvent(RagsEvent.ToggleOrderSection)
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.List,
-                            contentDescription = "Sort"
-                        )
-                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.List,
+                        contentDescription = "Sort"
+                    )
                 }
             }
             AnimatedVisibility(
@@ -131,14 +131,16 @@ fun RagScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(state.rags) { rag ->
+                items(filteredRags) { rag ->
                     RagItem(
                         rag = rag,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                navController.navigate(Screen.AddEditRagScreen.route +
-                                "?ragId=${rag.id}") // navigate to edit chosen rag
+                                navController.navigate(
+                                    Screen.AddEditRagScreen.route +
+                                            "?ragId=${rag.id}"
+                                ) // navigate to edit chosen rag
                             },
                         onDeleteClick = {
                             viewModel.onEvent(RagsEvent.DeleteRag(rag))
@@ -173,7 +175,7 @@ fun RagScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
-            }   
+            }
         }
     }
 }
