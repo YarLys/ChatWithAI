@@ -7,10 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.rememberNavController
-import com.example.chatwithai.presentation.MainScreen
-import com.example.chatwithai.presentation.add_edit_rag.AddEditRagScreen
-import com.example.chatwithai.presentation.rags.RagScreen
+import androidx.compose.ui.platform.LocalContext
+import com.example.chatwithai.presentation.main.MainScreen
 import com.example.chatwithai.presentation.theme.ChatWithAITheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -25,7 +23,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainScreen()
+                    MainScreen(activity = this)
                 }
             }
         }

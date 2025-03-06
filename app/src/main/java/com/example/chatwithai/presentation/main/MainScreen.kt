@@ -1,0 +1,79 @@
+package com.example.chatwithai.presentation.main
+
+import android.Manifest
+import android.app.Activity
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.rememberNavController
+import com.example.chatwithai.presentation.navigation.NavBottomMenu
+import com.example.chatwithai.presentation.navigation.NavHostContainer
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainScreen(
+    activity: Activity
+) {
+
+    val viewModel: MainViewModel = hiltViewModel()
+    val state by viewModel.state.collectAsState()
+    val navController = rememberNavController()
+
+    var hasNotificationPermission by remember {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            mutableStateOf(
+                ContextCompat.checkSelfPermission(
+                    activity,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            )
+        }
+        else mutableStateOf(true)
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            hasNotificationPermission = isGranted
+            if (isGranted) {
+                viewModel.checkIfUserLoggedInToday()
+            }
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+            && !hasNotificationPermission) {
+            launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        viewModel.checkIfUserLoggedInToday()
+    }
+
+    if (state.showNotification && hasNotificationPermission) {
+        LaunchedEffect(Unit) {
+            viewModel.sendNotification(
+                activity,
+                "Напоминание",
+                "Обязательно зайдите и задайте вопрос AI!"
+            )
+        }
+    }
+
+    Scaffold(
+        bottomBar = { NavBottomMenu(navController) }
+    ) { innerPadding ->
+        NavHostContainer(navController = navController, padding = innerPadding)
+    }
+}

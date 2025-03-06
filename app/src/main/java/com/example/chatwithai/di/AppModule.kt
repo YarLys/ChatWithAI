@@ -1,6 +1,8 @@
 package com.example.chatwithai.di
 
 import android.app.Application
+import android.content.Context
+import androidx.core.app.NotificationManagerCompat
 import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -13,11 +15,13 @@ import com.example.chatwithai.data.repository.MessageSharedEventRepositoryImpl
 import com.example.chatwithai.data.repository.RagRepositoryImpl
 import com.example.chatwithai.data.repository.ResponseRepositoryImpl
 import com.example.chatwithai.data.repository.RagSharedEventRepositoryImpl
+import com.example.chatwithai.data.repository.UserPreferencesImpl
 import com.example.chatwithai.domain.repository.MessageRepository
 import com.example.chatwithai.domain.repository.MessageSharedEventRepository
 import com.example.chatwithai.domain.repository.RagRepository
 import com.example.chatwithai.domain.repository.ResponseRepository
 import com.example.chatwithai.domain.repository.RagSharedEventRepository
+import com.example.chatwithai.domain.repository.UserPreferences
 import com.example.chatwithai.domain.use_case.messages.AddMessage
 import com.example.chatwithai.domain.use_case.messages.DeleteAllMessages
 import com.example.chatwithai.domain.use_case.messages.DeleteMessage
@@ -27,6 +31,8 @@ import com.example.chatwithai.domain.use_case.messages.GetStarredMessages
 import com.example.chatwithai.domain.use_case.messages.MessageUseCases
 import com.example.chatwithai.domain.use_case.messages.UpdateMessage
 import com.example.chatwithai.domain.use_case.messages.UseMessage
+import com.example.chatwithai.domain.use_case.notifications.CheckIfUserUsedAppToday
+import com.example.chatwithai.domain.use_case.notifications.SendNotification
 import com.example.chatwithai.domain.use_case.rags.AddRag
 import com.example.chatwithai.domain.use_case.rags.DeleteRag
 import com.example.chatwithai.domain.use_case.rags.GetRag
@@ -38,6 +44,7 @@ import com.example.chatwithai.domain.use_case.rags.UseRag
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -183,5 +190,29 @@ object AppModule {
     @Singleton
     fun provideMessageSharedEventRepository(): MessageSharedEventRepository {
         return MessageSharedEventRepositoryImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserPreferences(@ApplicationContext context: Context): UserPreferences {
+        return UserPreferencesImpl(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNotificationManager(@ApplicationContext context: Context): NotificationManagerCompat {
+        return NotificationManagerCompat.from(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCheckIfUserUsedAppTodayUseCase(userPreferences: UserPreferences): CheckIfUserUsedAppToday {
+        return CheckIfUserUsedAppToday(userPreferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSendNotificationUseCase(notificationManager: NotificationManagerCompat): SendNotification {
+        return SendNotification(notificationManager)
     }
 }
