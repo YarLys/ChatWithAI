@@ -16,6 +16,10 @@ class MessageRepositoryImpl(
         return dao.getMessageById(id)
     }
 
+    override fun getMessagesByChatId(chatId: Int): Flow<List<MessageEntity>> {
+        return dao.getMessagesByChatId(chatId)
+    }
+
     override suspend fun insertMessage(messageEntity: MessageEntity) {
         dao.insertMessage(messageEntity)
     }

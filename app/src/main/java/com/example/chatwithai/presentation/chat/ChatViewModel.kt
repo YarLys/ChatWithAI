@@ -4,10 +4,13 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chatwithai.common.Resource
+import com.example.chatwithai.domain.model.Chat
 import com.example.chatwithai.domain.model.Message
 import com.example.chatwithai.domain.model.MessageEntity
 import com.example.chatwithai.domain.model.Response
 import com.example.chatwithai.domain.use_case.RequestUseCase
+import com.example.chatwithai.domain.use_case.chats.ChatUseCases
+import com.example.chatwithai.domain.use_case.messages.GetMessagesByChatId
 import com.example.chatwithai.domain.use_case.messages.SaveMessage
 import com.example.chatwithai.domain.use_case.messages.UseMessage
 import com.example.chatwithai.domain.use_case.rags.UseRag
@@ -15,8 +18,12 @@ import com.example.chatwithai.presentation.chat.components.MenuItem
 import com.example.chatwithai.presentation.history.MessageSharedEvent
 import com.example.chatwithai.presentation.rags.RagSharedEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,7 +32,9 @@ class ChatViewModel @Inject constructor(
     private val requestUseCase: RequestUseCase,
     private val ragEventUseCase: UseRag,
     private val saveMessageUseCase: SaveMessage,
-    private val messageEventUseCase: UseMessage
+    private val messageEventUseCase: UseMessage,
+    private val chatUseCases: ChatUseCases,
+    private val getMessagesByChatId: GetMessagesByChatId
 ) : ViewModel() {
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
@@ -37,10 +46,19 @@ class ChatViewModel @Inject constructor(
     private val _userMessage = MutableStateFlow("")
     val userMessage: StateFlow<String> = _userMessage
 
-    private val _chats = MutableStateFlow<List<MenuItem>>(emptyList())
-    val chats: MutableStateFlow<List<MenuItem>> = _chats
+    private val _chats = MutableStateFlow<List<Chat>>(emptyList())
+    val chats: StateFlow<List<Chat>> = _chats
+
+    private val _chosenChat = MutableStateFlow<Int>(0)
+    val chosenChat: StateFlow<Int> = _chosenChat
+
+    private var getChatsJob: Job? = null
+    private var getHistoryJob: Job? = null
 
     init {
+        getChats()
+        getChatHistory(1)
+
         viewModelScope.launch {
             ragEventUseCase.observeEvents().collect { event ->
                 event?.let {
@@ -52,6 +70,32 @@ class ChatViewModel @Inject constructor(
             messageEventUseCase.observeEvents().collect{ event ->
                 event?.let {
                     handleMessageEvent(it)
+                }
+            }
+        }
+    }
+
+    fun onEvent(event: ChatEvent) {
+        when (event) {
+            is ChatEvent.ChangeChat -> {
+                _chosenChat.value = event.chatId ?: 1
+                getChatHistory(event.chatId ?: 1)
+            }
+            is ChatEvent.AddChat -> {
+                viewModelScope.launch {
+                    chatUseCases.addChat(event.chat)
+                }
+            }
+            is ChatEvent.DeleteChat -> {
+                viewModelScope.launch {
+                    chatUseCases.deleteChat(event.chat)
+                }
+                _chosenChat.value = 1
+                getChatHistory(1)
+            }
+            is ChatEvent.UpdateChat -> {
+                viewModelScope.launch {
+                    chatUseCases.updateChat(event.chat)
                 }
             }
         }
@@ -112,7 +156,8 @@ class ChatViewModel @Inject constructor(
                                 MessageEntity(   // null id means create new message in db
                                     request = message,
                                     response = response.response,
-                                    timestamp = System.currentTimeMillis()
+                                    timestamp = System.currentTimeMillis(),
+                                    chatId = chosenChat.value
                                 )
                             )
                         }
@@ -127,7 +172,8 @@ class ChatViewModel @Inject constructor(
                                 MessageEntity(   // null id means create new message in db
                                     request = message,
                                     response = result.message ?: "",
-                                    timestamp = System.currentTimeMillis()
+                                    timestamp = System.currentTimeMillis(),
+                                    chatId = chosenChat.value
                                 )
                             )
                         }
@@ -141,6 +187,36 @@ class ChatViewModel @Inject constructor(
                 _state.value = ChatListState(isLoading = false)
             }
         }
+    }
+
+    fun getChats() {
+        getChatsJob?.cancel()
+        getChatsJob =
+            chatUseCases.getChats().onEach { getChats ->
+                _chats.value = getChats
+            }.launchIn(viewModelScope)
+    }
+
+    fun getChatHistory(chatId: Int) {
+        getHistoryJob?.cancel()
+        getHistoryJob =
+        getMessagesByChatId(chatId).map { messageEntities ->
+            // convert MessageEntity in 2 Messages
+            messageEntities.flatMap { messageEntity ->
+                listOf(
+                    Message(
+                        text = messageEntity.request,
+                        isRequest = true
+                    ),
+                    Message(
+                        text = messageEntity.response,
+                        isRequest = false
+                    )
+                )
+            }
+        }.onEach { messages ->
+            _messages.value = messages
+        }.launchIn(viewModelScope)
     }
 
     fun clearEvent(flag: Int) {  // 1 = rag event, 2 = message event

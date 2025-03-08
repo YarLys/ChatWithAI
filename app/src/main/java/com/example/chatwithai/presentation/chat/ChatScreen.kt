@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.chatwithai.domain.model.Chat
 import com.example.chatwithai.domain.model.Message
 import com.example.chatwithai.presentation.chat.components.AppBar
 import com.example.chatwithai.presentation.chat.components.DrawerBody
@@ -35,20 +36,36 @@ fun ChatScreen() {
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    //val chats by viewModel.chats.collectAsState()  // list of chats
+    val chats by viewModel.chats.collectAsState()  // list of chats
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                DrawerHeader()
+                DrawerHeader(
+                    onAddClick = {
+                        viewModel.onEvent(ChatEvent.AddChat(Chat(title = it)))
+                    }
+                )
                 DrawerBody(
-                    items = listOf(MenuItem(id = 0, title = "Chat1", icon = Icons.Default.Chat)),
-                    onItemClick = {
-                        // todo event change chat list
+                    items = chats.map { chat ->
+                        MenuItem(
+                            id = chat.id,
+                            title = chat.title,
+                            icon = Icons.Default.Chat
+                        )
+                    },
+                    onItemClick = { chat ->
+                        viewModel.onEvent(ChatEvent.ChangeChat(chat.id))
                         scope.launch {
                             drawerState.close()  // close drawer when select chat
                         }
+                    },
+                    onDeleteClick = { chat ->
+                        viewModel.onEvent(ChatEvent.DeleteChat(Chat(chat.title, chat.id)))
+                    },
+                    onEditClick = { chat ->
+                        viewModel.onEvent(ChatEvent.UpdateChat(Chat(chat.title, chat.id)))
                     }
                 )
             }
@@ -58,10 +75,9 @@ fun ChatScreen() {
     ) {
         Scaffold(
             topBar = {
-                AppBar(   // исправить, чтобы не заезжал текст сообщений сюда
+                AppBar(
                     onNavigationIconClick = {
                         scope.launch {
-                            //drawerState.open()
                             drawerState.apply {
                                 if (isClosed) open() else close()
                             }
@@ -155,7 +171,8 @@ fun ChatScreen() {
 @Composable
 fun ShowMessage(message: Message) {
     val alignment = if (message.isRequest) Alignment.TopEnd else Alignment.TopStart
-    val color = if (message.isRequest) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+    val color =
+        if (message.isRequest) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
 
     Box(
         modifier = Modifier

@@ -17,6 +17,9 @@ interface MessageDao {
     @Query("SELECT * FROM history WHERE id = :id")
     suspend fun getMessageById(id: Int): MessageEntity?
 
+    @Query("SELECT * FROM history WHERE chatId = :chatId")
+    fun getMessagesByChatId(chatId: Int): Flow<List<MessageEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMessage(messageEntity: MessageEntity)
 

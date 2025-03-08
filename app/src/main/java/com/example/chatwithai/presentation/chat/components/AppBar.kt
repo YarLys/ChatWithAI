@@ -17,7 +17,7 @@ fun AppBar(
 ) {
     TopAppBar(
         title = {
-            Text(text = "Чат с AI", fontSize = 20.sp)
+            Text(text = "Чат с AI", fontSize = 22.sp)
         },
         navigationIcon = {
             IconButton(onClick = onNavigationIconClick) {

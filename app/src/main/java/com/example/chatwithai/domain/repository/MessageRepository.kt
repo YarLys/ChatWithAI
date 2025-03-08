@@ -9,6 +9,8 @@ interface MessageRepository {
 
     suspend fun getMessageById(id: Int): MessageEntity?
 
+    fun getMessagesByChatId(chatId: Int): Flow<List<MessageEntity>>
+
     suspend fun insertMessage(messageEntity: MessageEntity)
 
     suspend fun deleteMessage(messageEntity: MessageEntity)

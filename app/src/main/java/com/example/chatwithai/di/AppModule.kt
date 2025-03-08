@@ -10,23 +10,31 @@ import com.example.chatwithai.common.Constants
 import com.example.chatwithai.common.Constants.DATABASE_NAME
 import com.example.chatwithai.data.local.database.RagDatabase
 import com.example.chatwithai.data.remote.NeuralApi
+import com.example.chatwithai.data.repository.ChatRepositoryImpl
 import com.example.chatwithai.data.repository.MessageRepositoryImpl
 import com.example.chatwithai.data.repository.MessageSharedEventRepositoryImpl
 import com.example.chatwithai.data.repository.RagRepositoryImpl
 import com.example.chatwithai.data.repository.ResponseRepositoryImpl
 import com.example.chatwithai.data.repository.RagSharedEventRepositoryImpl
 import com.example.chatwithai.data.repository.UserPreferencesImpl
+import com.example.chatwithai.domain.repository.ChatRepository
 import com.example.chatwithai.domain.repository.MessageRepository
 import com.example.chatwithai.domain.repository.MessageSharedEventRepository
 import com.example.chatwithai.domain.repository.RagRepository
 import com.example.chatwithai.domain.repository.ResponseRepository
 import com.example.chatwithai.domain.repository.RagSharedEventRepository
 import com.example.chatwithai.domain.repository.UserPreferences
+import com.example.chatwithai.domain.use_case.chats.AddChat
+import com.example.chatwithai.domain.use_case.chats.ChatUseCases
+import com.example.chatwithai.domain.use_case.chats.DeleteChat
+import com.example.chatwithai.domain.use_case.chats.GetChats
+import com.example.chatwithai.domain.use_case.chats.UpdateChat
 import com.example.chatwithai.domain.use_case.messages.AddMessage
 import com.example.chatwithai.domain.use_case.messages.DeleteAllMessages
 import com.example.chatwithai.domain.use_case.messages.DeleteMessage
 import com.example.chatwithai.domain.use_case.messages.GetMessage
 import com.example.chatwithai.domain.use_case.messages.GetMessages
+import com.example.chatwithai.domain.use_case.messages.GetMessagesByChatId
 import com.example.chatwithai.domain.use_case.messages.GetStarredMessages
 import com.example.chatwithai.domain.use_case.messages.MessageUseCases
 import com.example.chatwithai.domain.use_case.messages.UpdateMessage
@@ -117,6 +125,73 @@ object AppModule {
         }
     }
 
+    val MIGRATION_4_5 = object : Migration(4, 5) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            // create new table for chats
+            database.execSQL(
+                """
+            CREATE TABLE IF NOT EXISTS chats (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL
+            )
+            """
+            )
+            database.execSQL(
+                """
+            ALTER TABLE history ADD COLUMN chatId INTEGER NOT NULL DEFAULT 1 
+            """
+            )
+            database.execSQL(
+                """
+            INSERT OR IGNORE INTO chats (id, title) VALUES (1, 'Основной чат')
+            """
+            )
+            database.execSQL(
+                """
+            UPDATE history SET chatId = 1 
+            """
+            )
+
+            database.execSQL(
+                """
+                    CREATE TRIGGER fk_history_chatId
+                    BEFORE INSERT ON history
+                    FOR EACH ROW
+                    BEGIN
+                        SELECT CASE
+                            WHEN (SELECT id FROM chats WHERE id = NEW.chatId) IS NULL
+                            THEN RAISE(ABORT, 'Foreign key violation: chatId does not exist')
+                        END;
+                    END;
+                    """
+            )
+            // create new table for history
+            database.execSQL(
+                """
+            CREATE TABLE history_new (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                request TEXT NOT NULL,
+                response TEXT NOT NULL,
+                timestamp INTEGER NOT NULL,
+                isStarred INTEGER NOT NULL DEFAULT 0,
+                chatId INTEGER NOT NULL DEFAULT 1,
+                FOREIGN KEY (chatId) REFERENCES chats(id) ON DELETE CASCADE
+            )
+            """
+            )
+            // copy data from old table to new one
+            database.execSQL(
+                """
+            INSERT INTO history_new (id, request, response, timestamp, isStarred, chatId)
+            SELECT id, request, response, timestamp, isStarred, chatId FROM history
+            """
+            )
+            // delete old table and rename new one
+            database.execSQL("DROP TABLE history")
+            database.execSQL("ALTER TABLE history_new RENAME TO history")
+        }
+    }
+
     @Provides
     @Singleton
     fun provideRagDatabase(app: Application): RagDatabase {
@@ -125,7 +200,7 @@ object AppModule {
             RagDatabase::class.java,
             DATABASE_NAME
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
             .build()
     }
 
@@ -139,6 +214,12 @@ object AppModule {
     @Singleton
     fun provideMessageRepository(db: RagDatabase): MessageRepository {
         return MessageRepositoryImpl(db.messageDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideChatRepository(db: RagDatabase): ChatRepository {
+        return ChatRepositoryImpl(db.chatDao)
     }
 
     @Provides
@@ -165,6 +246,17 @@ object AppModule {
             addMessage = AddMessage(repository),
             updateMessage = UpdateMessage(repository),
             getStarredMessages = GetStarredMessages(repository)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideChatUseCases(repository: ChatRepository): ChatUseCases {
+        return ChatUseCases(
+            getChats = GetChats(repository),
+            addChat = AddChat(repository),
+            deleteChat = DeleteChat(repository),
+            updateChat = UpdateChat(repository)
         )
     }
 
