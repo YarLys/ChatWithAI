@@ -11,6 +11,7 @@ import com.example.chatwithai.domain.use_case.RequestUseCase
 import com.example.chatwithai.domain.use_case.messages.SaveMessage
 import com.example.chatwithai.domain.use_case.messages.UseMessage
 import com.example.chatwithai.domain.use_case.rags.UseRag
+import com.example.chatwithai.presentation.chat.components.MenuItem
 import com.example.chatwithai.presentation.history.MessageSharedEvent
 import com.example.chatwithai.presentation.rags.RagSharedEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,6 +36,9 @@ class ChatViewModel @Inject constructor(
 
     private val _userMessage = MutableStateFlow("")
     val userMessage: StateFlow<String> = _userMessage
+
+    private val _chats = MutableStateFlow<List<MenuItem>>(emptyList())
+    val chats: MutableStateFlow<List<MenuItem>> = _chats
 
     init {
         viewModelScope.launch {
