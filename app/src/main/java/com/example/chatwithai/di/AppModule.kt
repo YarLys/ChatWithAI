@@ -28,6 +28,7 @@ import com.example.chatwithai.domain.use_case.chats.AddChat
 import com.example.chatwithai.domain.use_case.chats.ChatUseCases
 import com.example.chatwithai.domain.use_case.chats.DeleteChat
 import com.example.chatwithai.domain.use_case.chats.GetChats
+import com.example.chatwithai.domain.use_case.chats.GetLastChat
 import com.example.chatwithai.domain.use_case.chats.UpdateChat
 import com.example.chatwithai.domain.use_case.messages.AddMessage
 import com.example.chatwithai.domain.use_case.messages.DeleteAllMessages
@@ -256,7 +257,8 @@ object AppModule {
             getChats = GetChats(repository),
             addChat = AddChat(repository),
             deleteChat = DeleteChat(repository),
-            updateChat = UpdateChat(repository)
+            updateChat = UpdateChat(repository),
+            getLastChat = GetLastChat(repository)
         )
     }
 

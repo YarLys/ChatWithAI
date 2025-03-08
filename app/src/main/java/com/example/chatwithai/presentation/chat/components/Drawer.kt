@@ -1,5 +1,6 @@
 package com.example.chatwithai.presentation.chat.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -57,11 +59,13 @@ fun DrawerHeader(
                 fontSize = 20.sp,
             )
             IconButton(
-                onClick = { showDialog = true }
+                onClick = { showDialog = true },
+                modifier = Modifier.size(36.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.AddCircle,
                     contentDescription = "AddChat",
+                    modifier = Modifier.size(30.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
@@ -131,12 +135,18 @@ fun DrawerBody(
                     .clickable {
                         onItemClick(item)
                     }
-                    .padding(16.dp),
+                    .background(
+                        if (item.isSelected) MaterialTheme.colorScheme.primaryContainer
+                        else MaterialTheme.colorScheme.surface
+                    )
+                    .padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = item.icon,
-                    contentDescription = "chat"
+                    contentDescription = "chat",
+                    tint = if (item.isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+                    else MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
@@ -144,28 +154,30 @@ fun DrawerBody(
                     style = itemTextStyle,
                     modifier = Modifier.weight(1f)
                 )
-                if (item.id != 1) {   // 1 chat must be available
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(
-                            onClick = {
-                                chatToRename = item
-                                newChatName = item.title
-                                showRenameDialog = true
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = "RenameChat"
-                            )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = {
+                            chatToRename = item
+                            newChatName = item.title
+                            showRenameDialog = true
                         }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "RenameChat",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    if (item.id != 1) {   // 1 chat must be available
                         IconButton(
                             onClick = { onDeleteClick(item) }
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
-                                contentDescription = "DeleteChat"
+                                contentDescription = "DeleteChat",
+                                tint = MaterialTheme.colorScheme.error
                             )
                         }
                     }

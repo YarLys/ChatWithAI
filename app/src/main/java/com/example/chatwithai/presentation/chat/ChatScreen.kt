@@ -34,9 +34,11 @@ fun ChatScreen() {
     // list state
     val listState = rememberLazyListState()
 
+    val snackbarHostState = remember { SnackbarHostState() }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val chats by viewModel.chats.collectAsState()  // list of chats
+    val chosenChat by viewModel.chosenChat.collectAsState()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -52,7 +54,8 @@ fun ChatScreen() {
                         MenuItem(
                             id = chat.id,
                             title = chat.title,
-                            icon = Icons.Default.Chat
+                            icon = Icons.Default.Chat,
+                            isSelected = chat.id == chosenChat
                         )
                     },
                     onItemClick = { chat ->
@@ -63,9 +66,21 @@ fun ChatScreen() {
                     },
                     onDeleteClick = { chat ->
                         viewModel.onEvent(ChatEvent.DeleteChat(Chat(chat.title, chat.id)))
+                        scope.launch {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            snackbarHostState.showSnackbar(
+                                message = "Чат удален"
+                            )
+                        }
                     },
                     onEditClick = { chat ->
                         viewModel.onEvent(ChatEvent.UpdateChat(Chat(chat.title, chat.id)))
+                        scope.launch {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            snackbarHostState.showSnackbar(
+                                message = "Чат переименован"
+                            )
+                        }
                     }
                 )
             }
@@ -84,7 +99,8 @@ fun ChatScreen() {
                         }
                     }
                 )
-            }
+            },
+            snackbarHost = { SnackbarHost(snackbarHostState) }
         ) { innerPadding ->
             Column(
                 modifier = Modifier

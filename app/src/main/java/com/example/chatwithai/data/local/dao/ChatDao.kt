@@ -14,6 +14,9 @@ interface ChatDao {
     @Query("SELECT * from chats")
     fun getAllChats(): Flow<List<Chat>>
 
+    @Query("SELECT * FROM chats ORDER BY id DESC LIMIT 1")
+    suspend fun getLastChat(): Chat?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertChat(chat: Chat)
 

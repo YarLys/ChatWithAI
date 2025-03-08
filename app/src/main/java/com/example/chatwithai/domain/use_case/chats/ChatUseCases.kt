@@ -4,5 +4,6 @@ data class ChatUseCases(
     val getChats: GetChats,
     val addChat: AddChat,
     val deleteChat: DeleteChat,
-    val updateChat: UpdateChat
+    val updateChat: UpdateChat,
+    val getLastChat: GetLastChat
 )

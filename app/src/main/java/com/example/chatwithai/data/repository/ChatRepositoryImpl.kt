@@ -13,6 +13,10 @@ class ChatRepositoryImpl(
         return dao.getAllChats()
     }
 
+    override suspend fun getLastChat(): Chat? {
+        return dao.getLastChat()
+    }
+
     override suspend fun insertChat(chat: Chat) {
         dao.insertChat(chat)
     }

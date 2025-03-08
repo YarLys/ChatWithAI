@@ -145,6 +145,7 @@ fun RagScreen(
                         onDeleteClick = {
                             viewModel.onEvent(RagsEvent.DeleteRag(rag))
                             scope.launch {
+                                snackbarHostState.currentSnackbarData?.dismiss()
                                 val result = snackbarHostState.showSnackbar(
                                     message = "RAG удален",
                                     actionLabel = "Отмена"
@@ -158,6 +159,7 @@ fun RagScreen(
                             Log.d("RagScreen", "Send use rag event: ${rag.content}")
                             viewModel.onSharedEvent(RagSharedEvent.UseRag(rag))
                             scope.launch {
+                                snackbarHostState.currentSnackbarData?.dismiss()
                                 snackbarHostState.showSnackbar(
                                     message = "RAG добавлен в запрос"
                                 )

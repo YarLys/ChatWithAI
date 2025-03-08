@@ -7,6 +7,8 @@ interface ChatRepository {
 
     fun getAllChats(): Flow<List<Chat>>
 
+    suspend fun getLastChat(): Chat?
+
     suspend fun insertChat(chat: Chat)
 
     suspend fun deleteChat(chat: Chat)

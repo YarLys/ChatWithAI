@@ -49,7 +49,7 @@ class ChatViewModel @Inject constructor(
     private val _chats = MutableStateFlow<List<Chat>>(emptyList())
     val chats: StateFlow<List<Chat>> = _chats
 
-    private val _chosenChat = MutableStateFlow<Int>(0)
+    private val _chosenChat = MutableStateFlow<Int>(1)
     val chosenChat: StateFlow<Int> = _chosenChat
 
     private var getChatsJob: Job? = null
@@ -84,6 +84,13 @@ class ChatViewModel @Inject constructor(
             is ChatEvent.AddChat -> {
                 viewModelScope.launch {
                     chatUseCases.addChat(event.chat)
+
+                    // get last added chat
+                    val lastChat = chatUseCases.getLastChat()
+                    lastChat?.let { chat ->
+                        _chosenChat.value = chat.id ?: 1
+                        getChatHistory(chat.id ?: 1)
+                    }
                 }
             }
             is ChatEvent.DeleteChat -> {
