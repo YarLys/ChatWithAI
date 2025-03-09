@@ -3,8 +3,10 @@ package com.example.chatwithai.presentation.chat
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,6 +14,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.InsertDriveFile
+import androidx.compose.material.icons.rounded.Mic
+import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.chatwithai.common.Resource
+import com.example.chatwithai.data.VoiceToTextParser
 import com.example.chatwithai.domain.model.Chat
 import com.example.chatwithai.domain.model.Message
 import com.example.chatwithai.presentation.chat.components.AppBar
@@ -42,6 +47,7 @@ fun ChatScreen() {
     val snackbarHostState = remember { SnackbarHostState() }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
     val chats by viewModel.chats.collectAsState()  // list of chats
     val chosenChat by viewModel.chosenChat.collectAsState()
 
@@ -55,6 +61,8 @@ fun ChatScreen() {
             }
         }
     )
+
+    val voiceToTextState by viewModel.voiceToTextState.collectAsState()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -184,6 +192,33 @@ fun ChatScreen() {
                             .weight(1f),
                         enabled = !state.isLoading  // block if it's loading
                     )
+
+                    Button(
+                        onClick = {
+                            if (voiceToTextState.isSpeaking) {
+                                viewModel.stopVoiceRecognition()
+                            }
+                            else {
+                                viewModel.startVoiceRecognition()
+                                Log.d("Speaking", "Starting recognition")
+                            }
+                        }
+                    ) {
+                        AnimatedContent(
+                            targetState = voiceToTextState.isSpeaking,
+                            label = ""
+                        ) { isSpeaking ->
+                            if (isSpeaking) {
+                                Icon(imageVector = Icons.Rounded.Stop, contentDescription = "StopRecording")
+                            }
+                            else {
+                                Icon(imageVector = Icons.Rounded.Mic, contentDescription = "StartRecording")
+                            }
+                        }
+                    }
+                    /*LaunchedEffect(voiceToTextState.spokenText) {
+                        if (!voiceToTextState.spokenText.isEmpty()) viewModel.updateUserMessage(voiceToTextState.spokenText)
+                    }*/
 
                     Button(
                         onClick = {

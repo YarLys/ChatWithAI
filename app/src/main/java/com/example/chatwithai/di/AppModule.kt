@@ -2,13 +2,16 @@ package com.example.chatwithai.di
 
 import android.app.Application
 import android.content.Context
+import android.speech.RecognitionListener
 import androidx.core.app.NotificationManagerCompat
 import androidx.room.Room
+import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.chatwithai.common.Constants
 import com.example.chatwithai.common.Constants.DATABASE_NAME
 import com.example.chatwithai.data.FileWriterImpl
+import com.example.chatwithai.data.VoiceToTextParser
 import com.example.chatwithai.data.local.database.RagDatabase
 import com.example.chatwithai.data.remote.NeuralApi
 import com.example.chatwithai.data.repository.ChatRepositoryImpl
@@ -205,6 +208,13 @@ object AppModule {
             DATABASE_NAME
         )
             .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+            .addCallback(object : RoomDatabase.Callback() {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    super.onCreate(db)
+                    // insert initial data into database when creating it
+                    db.execSQL("INSERT INTO chats (id, title) VALUES (1, 'Основной чат')")
+                }
+            })
             .build()
     }
 
@@ -323,5 +333,11 @@ object AppModule {
     @Singleton
     fun provideSendNotificationUseCase(notificationManager: NotificationManagerCompat): SendNotification {
         return SendNotification(notificationManager)
+    }
+
+    @Provides
+    @Singleton
+    fun provideVoiceToTextParser(@ApplicationContext app: Application): RecognitionListener {
+        return VoiceToTextParser(app)
     }
 }

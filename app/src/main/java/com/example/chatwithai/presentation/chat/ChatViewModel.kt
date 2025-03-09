@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chatwithai.common.Resource
+import com.example.chatwithai.data.VoiceToTextParser
 import com.example.chatwithai.domain.model.Chat
 import com.example.chatwithai.domain.model.Message
 import com.example.chatwithai.domain.model.MessageEntity
@@ -16,7 +17,6 @@ import com.example.chatwithai.domain.use_case.messages.GetMessagesByChatId
 import com.example.chatwithai.domain.use_case.messages.SaveMessage
 import com.example.chatwithai.domain.use_case.messages.UseMessage
 import com.example.chatwithai.domain.use_case.rags.UseRag
-import com.example.chatwithai.presentation.chat.components.MenuItem
 import com.example.chatwithai.presentation.history.MessageSharedEvent
 import com.example.chatwithai.presentation.rags.RagSharedEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,7 +37,8 @@ class ChatViewModel @Inject constructor(
     private val messageEventUseCase: UseMessage,
     private val chatUseCases: ChatUseCases,
     private val getMessagesByChatId: GetMessagesByChatId,
-    private val writeToFileUseCase: WriteToFile
+    private val writeToFileUseCase: WriteToFile,
+    private val voiceToTextParser: VoiceToTextParser
 ) : ViewModel() {
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
@@ -61,6 +62,8 @@ class ChatViewModel @Inject constructor(
     private val _exportStatus = MutableStateFlow<Resource<Unit>?>(null)
     val exportStatus: StateFlow<Resource<Unit>?> = _exportStatus
 
+    val voiceToTextState: StateFlow<VoiceToTextParserState> = voiceToTextParser.state
+
     init {
         getChats()
         getChatHistory(1)
@@ -79,6 +82,22 @@ class ChatViewModel @Inject constructor(
                 }
             }
         }
+        viewModelScope.launch {
+            voiceToTextParser.state.collect { state ->
+                if (state.spokenText.isNotBlank()) {
+                    updateUserMessage(state.spokenText)
+                    voiceToTextParser.clearSpokenText()
+                }
+            }
+        }
+    }
+
+    fun startVoiceRecognition(languageCode: String = "ru-RU") {
+        voiceToTextParser.startListening(languageCode)
+    }
+
+    fun stopVoiceRecognition() {
+        voiceToTextParser.stopListening()
     }
 
     fun exportData(uri: Uri?) {

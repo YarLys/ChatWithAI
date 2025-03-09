@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,6 +70,19 @@ fun MainScreen(
         }
     )
 
+    var canRecord by remember {
+        mutableStateOf(ContextCompat.checkSelfPermission(
+            activity,
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED)
+    }
+    val recordAudioLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            canRecord = isGranted
+        }
+    )
+
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
             && !hasNotificationPermission) {
@@ -78,6 +92,10 @@ fun MainScreen(
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && !hasWriteStoragePermission) {
             writeStoragePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+
+        if (!canRecord) {
+            recordAudioLauncher.launch(Manifest.permission.RECORD_AUDIO)
         }
     }
 
