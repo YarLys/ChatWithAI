@@ -1,5 +1,6 @@
 package com.example.chatwithai.presentation.chat
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +10,7 @@ import com.example.chatwithai.domain.model.Message
 import com.example.chatwithai.domain.model.MessageEntity
 import com.example.chatwithai.domain.model.Response
 import com.example.chatwithai.domain.use_case.RequestUseCase
+import com.example.chatwithai.domain.use_case.WriteToFile
 import com.example.chatwithai.domain.use_case.chats.ChatUseCases
 import com.example.chatwithai.domain.use_case.messages.GetMessagesByChatId
 import com.example.chatwithai.domain.use_case.messages.SaveMessage
@@ -34,7 +36,8 @@ class ChatViewModel @Inject constructor(
     private val saveMessageUseCase: SaveMessage,
     private val messageEventUseCase: UseMessage,
     private val chatUseCases: ChatUseCases,
-    private val getMessagesByChatId: GetMessagesByChatId
+    private val getMessagesByChatId: GetMessagesByChatId,
+    private val writeToFileUseCase: WriteToFile
 ) : ViewModel() {
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
@@ -55,6 +58,9 @@ class ChatViewModel @Inject constructor(
     private var getChatsJob: Job? = null
     private var getHistoryJob: Job? = null
 
+    private val _exportStatus = MutableStateFlow<Resource<Unit>?>(null)
+    val exportStatus: StateFlow<Resource<Unit>?> = _exportStatus
+
     init {
         getChats()
         getChatHistory(1)
@@ -72,6 +78,12 @@ class ChatViewModel @Inject constructor(
                     handleMessageEvent(it)
                 }
             }
+        }
+    }
+
+    fun exportData(uri: Uri?) {
+        viewModelScope.launch {
+            _exportStatus.value = writeToFileUseCase(uri)
         }
     }
 

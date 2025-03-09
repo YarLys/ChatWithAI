@@ -15,13 +15,14 @@ import androidx.compose.ui.Modifier
 fun SearchBar(
     searchText: String,
     onSearchTextChanged: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    hint: String = "Поиск по запросам..."
 ) {
     TextField(
         value = searchText,
         onValueChange = onSearchTextChanged,
         modifier = modifier,
-        placeholder = { Text("Поиск по запросам...") },
+        placeholder = { Text(hint) },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
         singleLine = true,
         shape = MaterialTheme.shapes.medium

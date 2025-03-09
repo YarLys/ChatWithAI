@@ -8,6 +8,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.chatwithai.common.Constants
 import com.example.chatwithai.common.Constants.DATABASE_NAME
+import com.example.chatwithai.data.FileWriterImpl
 import com.example.chatwithai.data.local.database.RagDatabase
 import com.example.chatwithai.data.remote.NeuralApi
 import com.example.chatwithai.data.repository.ChatRepositoryImpl
@@ -24,6 +25,7 @@ import com.example.chatwithai.domain.repository.RagRepository
 import com.example.chatwithai.domain.repository.ResponseRepository
 import com.example.chatwithai.domain.repository.RagSharedEventRepository
 import com.example.chatwithai.domain.repository.UserPreferences
+import com.example.chatwithai.domain.use_case.WriteToFile
 import com.example.chatwithai.domain.use_case.chats.AddChat
 import com.example.chatwithai.domain.use_case.chats.ChatUseCases
 import com.example.chatwithai.domain.use_case.chats.DeleteChat
@@ -50,6 +52,7 @@ import com.example.chatwithai.domain.use_case.rags.GetStarredRags
 import com.example.chatwithai.domain.use_case.rags.RagUseCases
 import com.example.chatwithai.domain.use_case.rags.UpdateRag
 import com.example.chatwithai.domain.use_case.rags.UseRag
+import com.example.chatwithai.domain.util.FileWriter
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -272,6 +275,18 @@ object AppModule {
     @Singleton
     fun provideUseMessageUseCase(repository: MessageSharedEventRepository): UseMessage {
         return UseMessage(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFileWriter(@ApplicationContext context: Context): FileWriter {
+        return FileWriterImpl(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWriteToFileUseCase(fileWriter: FileWriter, repository: MessageRepository): WriteToFile {
+        return WriteToFile(fileWriter, repository)
     }
 
     @Provides

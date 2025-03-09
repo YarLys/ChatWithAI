@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -117,7 +118,6 @@ fun DrawerHeader(
 @Composable
 fun DrawerBody(
     items: List<MenuItem>,
-    modifier: Modifier = Modifier,
     itemTextStyle: TextStyle = TextStyle(fontSize = 18.sp),
     onItemClick: (MenuItem) -> Unit,
     onDeleteClick: (MenuItem) -> Unit,
@@ -127,7 +127,8 @@ fun DrawerBody(
     var chatToRename by remember { mutableStateOf<MenuItem?>(null) }
     var newChatName by remember { mutableStateOf("") }
 
-    LazyColumn(modifier) {
+
+    LazyColumn(modifier = Modifier.fillMaxSize().padding(bottom = 56.dp)) {
         items(items) { item ->
             Row(
                 modifier = Modifier

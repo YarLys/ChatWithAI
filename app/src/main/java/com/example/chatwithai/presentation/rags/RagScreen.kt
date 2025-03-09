@@ -88,7 +88,8 @@ fun RagScreen(
             ) {
                 SearchBar(
                     searchText = searchText,
-                    onSearchTextChanged = { viewModel.onEvent(RagsEvent.onSearchTextChanged(it)) }
+                    onSearchTextChanged = { viewModel.onEvent(RagsEvent.onSearchTextChanged(it)) },
+                    hint = "Поиск по RAG..."
                 )
                 IconButton(
                     onClick = {

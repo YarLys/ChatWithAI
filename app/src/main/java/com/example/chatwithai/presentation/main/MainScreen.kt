@@ -43,7 +43,16 @@ fun MainScreen(
         else mutableStateOf(true)
     }
 
-    val launcher = rememberLauncherForActivityResult(
+    var hasWriteStoragePermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
             hasNotificationPermission = isGranted
@@ -53,12 +62,23 @@ fun MainScreen(
         }
     )
 
+    val writeStoragePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            hasWriteStoragePermission = isGranted
+        }
+    )
+
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
             && !hasNotificationPermission) {
-            launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
         viewModel.checkIfUserLoggedInToday()
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && !hasWriteStoragePermission) {
+            writeStoragePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
     }
 
     if (state.showNotification && hasNotificationPermission) {
