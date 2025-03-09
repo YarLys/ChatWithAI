@@ -145,12 +145,12 @@ object AppModule {
             )
             database.execSQL(
                 """
-            ALTER TABLE history ADD COLUMN chatId INTEGER NOT NULL DEFAULT 1 
+            INSERT OR IGNORE INTO chats (id, title) VALUES (1, 'Основной чат')
             """
             )
             database.execSQL(
                 """
-            INSERT OR IGNORE INTO chats (id, title) VALUES (1, 'Основной чат')
+            ALTER TABLE history ADD COLUMN chatId INTEGER NOT NULL DEFAULT 1 
             """
             )
             database.execSQL(

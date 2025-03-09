@@ -202,7 +202,9 @@ fun ChatScreen() {
                                 viewModel.startVoiceRecognition()
                                 Log.d("Speaking", "Starting recognition")
                             }
-                        }
+                        },
+                        modifier = Modifier
+                            .padding(start = 8.dp)
                     ) {
                         AnimatedContent(
                             targetState = voiceToTextState.isSpeaking,
@@ -216,9 +218,6 @@ fun ChatScreen() {
                             }
                         }
                     }
-                    /*LaunchedEffect(voiceToTextState.spokenText) {
-                        if (!voiceToTextState.spokenText.isEmpty()) viewModel.updateUserMessage(voiceToTextState.spokenText)
-                    }*/
 
                     Button(
                         onClick = {
