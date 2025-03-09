@@ -42,15 +42,15 @@
 ![image](https://github.com/user-attachments/assets/262a2d99-8c95-4a7d-9de0-fa6ac7336643)
 ![image](https://github.com/user-attachments/assets/5cc0f628-c250-43b2-b124-40a62a10e995)
 ![image](https://github.com/user-attachments/assets/c2f78781-567d-4ee1-9a54-94afe91fe414)
-![image](https://github.com/user-attachments/assets/3063e947-0406-4da9-a7ad-d6ec16a1be47)
+![image](https://github.com/user-attachments/assets/2479dc8d-2d29-4e73-a052-2a09e4b32a31)
 ![image](https://github.com/user-attachments/assets/6391e099-3cbf-4123-875c-57eb10110494)
 
 
 ## Инструкция по запуску
 Для запуска необходимо установить Android Studio для сборки проекта из исходных данных с последующим запуском на эмуляторе или же на своем смартфоне, либо скачать apk и запустить его на смартфоне непосредственно.
 
-Минимальный Android SDK - 29
-Target Android SDK - 35
-Compile Android SDK - 35
-JDK Version - 17 
-Kotlin Version - 1.9.0
++ Минимальный Android SDK - 29
++ Target Android SDK - 35
++ Compile Android SDK - 35
++ JDK Version - 17 
++ Kotlin Version - 1.9.0
