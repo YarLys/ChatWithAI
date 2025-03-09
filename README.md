@@ -23,6 +23,7 @@
 Выбор архитектуры был основан на её актуальности, а также сочетаемости с применяемыми технологиями.
 
 ### Скриншоты приложения
+Ссылка на демонстрацию проекта (видео): https://drive.google.com/file/d/1SwQ4RwqTa42G9iOYKMFftQ8Z2aBV53hx/view?usp=sharing
 ![image](https://github.com/user-attachments/assets/74a804ce-eb1a-4e65-80ec-ca1b22a8fc96)
 ![image](https://github.com/user-attachments/assets/d25a0e53-4fef-42c6-b0ec-1837fa2f58da)
 ![image](https://github.com/user-attachments/assets/a3c011de-7fb7-44cf-84c8-90bc799606d2)
